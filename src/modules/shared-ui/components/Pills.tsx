@@ -30,7 +30,7 @@ export function Pills({ items, activeId, onSelect, className }: PillsProps) {
           onClick={() => onSelect(item.id)}
         >
           {item.label}
-          {typeof item.count === 'number' ? ` · ${item.count}` : null}
+          {typeof item.count === 'number' ? ` (${item.count})` : null}
         </button>
       ))}
     </div>

@@ -5,10 +5,10 @@ export function ClientQuotePage() {
   const navigate = useNavigate();
   return (
     <div className="page">
-      <GreetingHero
+      {/* <GreetingHero
         title="Request a Quote"
         subtitle="Tell us what you need. We'll review the brief, set pricing, and send it back for your approval."
-      />
+      /> */}
       <ClientBriefForm
         mode="quote"
         onSubmit={(id) => {

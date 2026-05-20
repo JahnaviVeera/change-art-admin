@@ -5,10 +5,10 @@ export function ClientPlaceOrderPage() {
   const navigate = useNavigate();
   return (
     <div className="page">
-      <GreetingHero
+      {/* <GreetingHero
         title="Place an Order"
         subtitle="Skip the quote step — confirm the brief, agree to the published rate, and we'll start production immediately."
-      />
+      /> */}
       <ClientBriefForm
         mode="order"
         onSubmit={(id) => {

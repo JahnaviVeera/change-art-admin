@@ -838,12 +838,29 @@ html[data-theme='light'] {
     gap: 8px;
   }
 
-  .tbl-search {
+  .tbl-search-wrap {
     flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .tbl-search-icon {
+    position: absolute;
+    left: 10px;
+    width: 13px;
+    height: 13px;
+    color: var(--text-faint);
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  .tbl-search {
+    width: 100%;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--glass-border);
     border-radius: 6px;
-    padding: 7px 12px;
+    padding: 7px 12px 7px 30px;
     color: var(--text-main);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     font-size: 12px;
@@ -856,6 +873,29 @@ html[data-theme='light'] {
 
   .tbl-search::placeholder {
     color: var(--text-faint);
+  }
+
+  .btn-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  .btn-filter:hover {
+    border-color: var(--glass-border-bright);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
   }
 
   .view-toggle {
@@ -960,11 +1000,11 @@ html[data-theme='light'] {
     background: rgba(0, 0, 0, 0.06);
   }
 
-  /* Status badge overlaying the top-left of the card image. */
+  /* Status badge overlaying the top-right of the card image. */
   .jc-status-overlay {
     position: absolute;
     top: 10px;
-    left: 10px;
+    right: 10px;
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -1612,5 +1652,584 @@ html[data-theme='light'] {
   /* ─ Mono helper (used in detail rows) ─ */
   .mono {
     font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     LIGHT THEME OVERRIDES — component-level colour fixes
+     The page background is always #f5f6f9 (light). These
+     rules ensure every component reads cleanly on that
+     surface when html[data-theme='light'] is active.
+  ═══════════════════════════════════════════════════════ */
+
+  /* ── Badges: replace light-on-dark colours with dark-on-light ── */
+  html[data-theme='light'] .badge.crimson {
+    background: rgba(196, 30, 58, 0.09);
+    color: var(--color-crimson);
+    border-color: rgba(196, 30, 58, 0.2);
+  }
+  html[data-theme='light'] .badge.crimson::before { background: var(--color-crimson); }
+
+  html[data-theme='light'] .badge.amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #92400e;
+    border-color: rgba(245, 158, 11, 0.25);
+  }
+  html[data-theme='light'] .badge.amber::before { background: #d97706; }
+
+  html[data-theme='light'] .badge.green {
+    background: rgba(34, 197, 94, 0.1);
+    color: #15803d;
+    border-color: rgba(34, 197, 94, 0.22);
+  }
+  html[data-theme='light'] .badge.green::before { background: #16a34a; }
+
+  html[data-theme='light'] .badge.teal {
+    background: rgba(45, 212, 191, 0.1);
+    color: #0d9488;
+    border-color: rgba(45, 212, 191, 0.22);
+  }
+  html[data-theme='light'] .badge.teal::before { background: #0d9488; }
+
+  html[data-theme='light'] .badge.blue {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+  html[data-theme='light'] .badge.blue::before { background: #2563eb; }
+
+  html[data-theme='light'] .badge.gray {
+    background: rgba(15, 23, 42, 0.05);
+    color: var(--text-muted);
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+  html[data-theme='light'] .badge.gray::before { background: var(--text-muted); }
+
+  html[data-theme='light'] .badge.purple {
+    background: rgba(168, 85, 247, 0.09);
+    color: #7e22ce;
+    border-color: rgba(168, 85, 247, 0.18);
+  }
+  html[data-theme='light'] .badge.purple::before { background: #9333ea; }
+
+  html[data-theme='light'] .badge.red {
+    background: rgba(239, 68, 68, 0.09);
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.18);
+  }
+  html[data-theme='light'] .badge.red::before { background: #ef4444; }
+
+  /* ── Priority badges ── */
+  html[data-theme='light'] .priority-badge.normal {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--text-muted);
+  }
+
+  html[data-theme='light'] .priority-badge.rush {
+    background: rgba(245, 158, 11, 0.1);
+    color: #92400e;
+  }
+
+  html[data-theme='light'] .priority-badge.super-rush {
+    background: rgba(196, 30, 58, 0.1);
+    color: var(--color-crimson);
+  }
+
+  /* ── Jobs root wrapper ── */
+  html[data-theme='light'] .jobs-root {
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.05);
+  }
+
+  /* ── Search input ── */
+  html[data-theme='light'] .tbl-search {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: rgba(15, 23, 42, 0.11);
+    color: var(--text-main);
+  }
+
+  html[data-theme='light'] .tbl-search-icon {
+    color: rgba(71, 85, 105, 0.5);
+  }
+
+  /* ── Filter button ── */
+  html[data-theme='light'] .btn-filter {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-muted);
+  }
+
+  html[data-theme='light'] .btn-filter:hover {
+    border-color: rgba(15, 23, 42, 0.22);
+    background: rgba(15, 23, 42, 0.04);
+    color: var(--text-main);
+  }
+
+  /* ── View toggle ── */
+  html[data-theme='light'] .view-toggle {
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+
+  html[data-theme='light'] .view-toggle button.on {
+    background: #fff;
+    color: var(--text-main);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+  }
+
+  /* ── Job cards — solid white with soft shadow ── */
+  html[data-theme='light'] .job-card {
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 6px 18px rgba(15, 23, 42, 0.06);
+  }
+
+  html[data-theme='light'] .job-card:hover {
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08), 0 10px 28px rgba(15, 23, 42, 0.1);
+  }
+
+  /* ── Action-required card — visible amber border ── */
+  html[data-theme='light'] .job-card-attention {
+    border-color: rgba(245, 158, 11, 0.52);
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.08), 0 6px 20px rgba(245, 158, 11, 0.14);
+  }
+
+  html[data-theme='light'] .job-card-attention:hover {
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.12), 0 10px 28px rgba(245, 158, 11, 0.18);
+  }
+
+  /* ── Action callout strip — dark readable amber text ── */
+  html[data-theme='light'] .jc-action {
+    background: rgba(245, 158, 11, 0.09);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #92400e;
+  }
+
+  html[data-theme='light'] .jc-action strong { color: #78350f; }
+
+  /* ── ETA pill ── */
+  html[data-theme='light'] .jc-eta {
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.1);
+    color: var(--text-muted);
+  }
+
+  /* ── Status overlay badge on card image ─ keep frosted white bg ── */
+  html[data-theme='light'] .jc-status-overlay {
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+  }
+
+  /* ── Pills — active = dark navy fill, hover = subtle ── */
+  html[data-theme='light'] .pill {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-muted);
+  }
+
+  html[data-theme='light'] .pill:hover:not(.active) {
+    border-color: rgba(15, 23, 42, 0.2);
+    background: rgba(15, 23, 42, 0.04);
+    color: var(--text-main);
+  }
+
+  html[data-theme='light'] .pill.active {
+    background: var(--color-navy-ink);
+    color: #fff;
+    border-color: var(--color-navy-ink);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUOTE FORM  (ClientBriefForm)
+   Clean card layout used by the Client Quote & Order pages.
+═══════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Card wrapper ── */
+  .qf-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-top-color: var(--glass-border-bright);
+    border-radius: var(--radius);
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+  }
+
+  html[data-theme='light'] .qf-card {
+    background: #fff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: rgba(15, 23, 42, 0.09);
+    border-top-color: rgba(15, 23, 42, 0.09);
+    box-shadow: 0 2px 20px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.04);
+  }
+
+  /* ── Header bar ── */
+  .qf-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  html[data-theme='light'] .qf-header {
+    border-bottom-color: rgba(15, 23, 42, 0.09);
+  }
+
+  .qf-header-dot {
+    width: 9px;
+    height: 9px;
+    background: var(--color-crimson);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .qf-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    flex: 1;
+  }
+
+  .qf-required-note {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ── Body padding ── */
+  .qf-body {
+    padding: 24px;
+  }
+
+  /* ── Section wrappers ── */
+  .qf-section {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  html[data-theme='light'] .qf-section {
+    border-bottom-color: rgba(15, 23, 42, 0.09);
+  }
+
+  .qf-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .qf-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-navy-ink);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .qf-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  /* ── Order-type card grid ── */
+  .qf-order-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 580px) {
+    .qf-order-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .qf-order-card {
+    text-align: center;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 18px 10px 14px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.03);
+    transition: var(--transition);
+    font-family: inherit;
+  }
+
+  .qf-order-card:hover:not(.active) {
+    border-color: var(--glass-border-bright);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .qf-order-card.active {
+    border: 1.5px solid rgba(30, 58, 95, 0.5);
+    background: rgba(30, 58, 95, 0.1);
+  }
+
+  html[data-theme='light'] .qf-order-card {
+    border-color: rgba(15, 23, 42, 0.1);
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  }
+
+  html[data-theme='light'] .qf-order-card:hover:not(.active) {
+    border-color: rgba(15, 23, 42, 0.2);
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  html[data-theme='light'] .qf-order-card.active {
+    border-color: rgba(30, 58, 95, 0.38);
+    background: rgba(30, 58, 95, 0.07);
+    box-shadow: 0 0 0 1px rgba(30, 58, 95, 0.12);
+  }
+
+  .qf-order-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+    display: block;
+    line-height: 1;
+  }
+
+  .qf-order-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 3px;
+  }
+
+  .qf-order-sub {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── ETA helper note ── */
+  .qf-eta-note {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    margin-top: -6px;
+  }
+
+  /* ── Upload drop zone ── */
+  .qf-upload-zone {
+    border: 1.5px dashed var(--glass-border-bright);
+    border-radius: 12px;
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 20px;
+  }
+
+  html[data-theme='light'] .qf-upload-zone {
+    border-color: rgba(15, 23, 42, 0.18);
+    background: transparent;
+  }
+
+  .qf-upload-zone:hover {
+    border-color: rgba(30, 58, 95, 0.4);
+  }
+
+  .qf-upload-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+  }
+
+  html[data-theme='light'] .qf-upload-icon-wrap {
+    background: rgba(15, 23, 42, 0.07);
+  }
+
+  .qf-upload-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 5px;
+  }
+
+  .qf-upload-browse {
+    color: var(--color-navy-ink);
+    cursor: pointer;
+  }
+
+  html[data-theme='light'] .qf-upload-browse {
+    color: #1e3a5f;
+  }
+
+  .qf-upload-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ── Cloud storage helper text ── */
+  .qf-cloud-hint {
+    font-size: 11px;
+    color: rgba(196, 30, 58, 0.75);
+    margin-top: 6px;
+  }
+
+  /* ── Output format chips ── */
+  .qf-formats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .qf-format-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+    font-family: inherit;
+  }
+
+  html[data-theme='light'] .qf-format-chip {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .qf-format-chip.checked {
+    border-color: var(--glass-border-bright);
+    color: var(--text-main);
+  }
+
+  html[data-theme='light'] .qf-format-chip.checked {
+    border-color: rgba(15, 23, 42, 0.3);
+    color: var(--text-main);
+  }
+
+  .qf-format-chip-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1.5px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition);
+  }
+
+  .qf-format-chip.checked .qf-format-chip-box {
+    background: var(--color-navy-ink);
+    border-color: var(--color-navy-ink);
+    color: #fff;
+  }
+
+  /* ── Footer button row ── */
+  .qf-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  html[data-theme='light'] .qf-footer {
+    border-top-color: rgba(15, 23, 42, 0.09);
+  }
+
+  .qf-btn-draft {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--glass-border);
+    color: var(--text-main);
+  }
+
+  html[data-theme='light'] .qf-btn-draft {
+    background: #fff;
+    border-color: rgba(15, 23, 42, 0.14);
+    color: var(--text-main);
+  }
+
+  .qf-btn-draft:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--glass-border-bright);
+  }
+
+  html[data-theme='light'] .qf-btn-draft:hover:not(:disabled) {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: rgba(15, 23, 42, 0.22);
+  }
+
+  .qf-btn-submit {
+    border-radius: 20px;
+    background: var(--color-navy-ink);
+    border-color: var(--color-navy-ink);
+    color: #fff;
+  }
+
+  .qf-btn-submit:hover:not(:disabled) {
+    background: #162d4a;
+    border-color: #162d4a;
+  }
+
+  /* ── .fi overrides scoped to qf-card (light theme only) ── */
+  html[data-theme='light'] .qf-card .fi {
+    background: #fff;
+    border-color: rgba(15, 23, 42, 0.14);
+    color: var(--text-main);
+  }
+
+  html[data-theme='light'] .qf-card .fi::placeholder {
+    color: rgba(15, 23, 42, 0.3);
+  }
+
+  html[data-theme='light'] .qf-card .fi:focus {
+    border-color: var(--color-navy-ink);
+    background: rgba(30, 58, 95, 0.02);
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.08);
+  }
+
+  /* Custom chevron for select in light theme */
+  html[data-theme='light'] .qf-card select.fi {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    background-size: 13px;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  /* Suffix label for optional fields */
+  .qf-label-suffix {
+    font-weight: 500;
+    opacity: 0.6;
+    font-size: 10px;
   }
 }

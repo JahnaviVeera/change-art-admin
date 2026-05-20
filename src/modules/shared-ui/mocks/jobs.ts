@@ -92,7 +92,7 @@ export const JOBS: Job[] = [
     process: 'Screen Printing',
     priority: 'Rush',
     etaHours: 8,
-    status: 'In QC',
+    status: 'Quote Approved',
     stage: 'qc',
     assignedTo: 'Kavya Reddy',
     subType: 'Senior',

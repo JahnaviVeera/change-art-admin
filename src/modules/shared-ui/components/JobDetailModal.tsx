@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, CheckCircle2, Clock } from 'lucide-react';
+import { X, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { cn } from '@lib/utils';
 import { type Job, jobImage } from '../mocks/jobs';
 
@@ -168,6 +168,24 @@ export function JobDetailModal({ job, onClose, onConfirmJob }: JobDetailModalPro
         </div>
 
         <div className="px-5 pb-6 pt-5 bg-white flex flex-col gap-6 overflow-y-auto flex-1">
+
+          {/* ── QUOTE APPROVED ALERT ── */}
+          {job.status === 'Quote Approved' && (
+            <div
+              className="rounded-xl p-4 flex items-start gap-3"
+              style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.32)' }}
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} aria-hidden />
+              <div>
+                <div className="text-[12.5px] font-bold mb-0.5" style={{ color: 'var(--text-main)' }}>
+                  Quote Ready — Action Required
+                </div>
+                <div className="text-[11.5px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                  Your quote has been approved and is ready for review. Check the price below and confirm to start production.
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── JOB IMAGES ── */}
           <div>

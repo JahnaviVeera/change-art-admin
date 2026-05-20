@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { Inbox, Clock, CheckCircle2, Download } from 'lucide-react';
+import { Inbox, Clock, CheckCircle2, Download, Search } from 'lucide-react';
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -12,7 +12,8 @@ import { cn } from '@lib/utils';
 import { jobImage, type Job } from '../mocks/jobs';
 
 function statusDisplay(status: string): string {
-  return status === 'Pending Client Confirm' ? 'Action Required' : status;
+  if (status === 'Pending Client Confirm' || status === 'Quote Approved') return 'Action Required';
+  return status;
 }
 
 type JobView = 'grid' | 'list' | 'table';
@@ -77,14 +78,17 @@ export function JobTable({
     <div className="jobs-root" data-view={view}>
       {withControls ? (
         <div className="tbl-top">
-          <input
-            type="text"
-            className="tbl-search"
-            placeholder="Search jobs, clients, designs…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search jobs"
-          />
+          <div className="tbl-search-wrap">
+            <Search className="tbl-search-icon" aria-hidden />
+            <input
+              type="text"
+              className="tbl-search"
+              placeholder="Search designs, job IDs..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search jobs"
+            />
+          </div>
           <div className="view-toggle" role="tablist" aria-label="Job views">
             {(['grid', 'list', 'table'] as const).map((v) => (
               <button
@@ -292,7 +296,7 @@ function GridView({
   return (
     <div className="grid-view">
       {jobs.map((j) => {
-        const actionRequired = j.status === 'Pending Client Confirm';
+        const actionRequired = j.status === 'Pending Client Confirm' || j.status === 'Quote Approved';
         const agencyPrice = j.negotiation?.agencyOffer ?? j.adminPrice ?? null;
         return (
           <article
