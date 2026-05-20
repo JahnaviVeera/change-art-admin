@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { cn } from '@lib/utils';
 import { type Job, jobImage } from '../mocks/jobs';
@@ -77,6 +77,26 @@ function priorityClass(priority: string): string {
 }
 
 export function JobDetailModal({ job, onClose, onConfirmJob }: JobDetailModalProps) {
+  const [isAnimatedIn, setIsAnimatedIn] = useState(false);
+
+  useEffect(() => {
+    if (job) {
+      const raf = requestAnimationFrame(() => {
+        setIsAnimatedIn(true);
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+    return undefined;
+  }, [job]);
+
+  const handleClose = useCallback(() => {
+    setIsAnimatedIn(false);
+    const timer = setTimeout(() => {
+      onClose();
+    }, 220);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
   useEffect(() => {
     if (!job) return undefined;
     const prev = document.body.style.overflow;
@@ -86,10 +106,10 @@ export function JobDetailModal({ job, onClose, onConfirmJob }: JobDetailModalPro
 
   useEffect(() => {
     if (!job) return undefined;
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [job, onClose]);
+  }, [job, handleClose]);
 
   if (!job) return null;
 
@@ -125,8 +145,14 @@ export function JobDetailModal({ job, onClose, onConfirmJob }: JobDetailModalPro
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-      style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{
+        background: isAnimatedIn ? 'rgba(15, 23, 42, 0.15)' : 'rgba(15, 23, 42, 0)',
+        backdropFilter: isAnimatedIn ? 'blur(4px)' : 'blur(0px)',
+        WebkitBackdropFilter: isAnimatedIn ? 'blur(4px)' : 'blur(0px)',
+        transition: 'all 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+        opacity: isAnimatedIn ? 1 : 0,
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
       role="presentation"
     >
       <div
@@ -134,6 +160,11 @@ export function JobDetailModal({ job, onClose, onConfirmJob }: JobDetailModalPro
         aria-modal="true"
         aria-label={`Job detail: ${job.design}`}
         className="glass-heavy relative w-full sm:max-w-2xl max-h-[96dvh] sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden"
+        style={{
+          transform: isAnimatedIn ? 'translateY(0px) scale(1)' : 'translateY(30px) scale(0.96)',
+          opacity: isAnimatedIn ? 1 : 0,
+          transition: 'all 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -158,7 +189,7 @@ export function JobDetailModal({ job, onClose, onConfirmJob }: JobDetailModalPro
             </div>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-shrink-0 p-2 rounded-lg border border-glass-border text-text-muted hover:border-crimson/50 hover:text-crimson transition mt-0.5"
               aria-label="Close"
             >

@@ -99,7 +99,10 @@ export function JobTable({
                 type="button"
                 role="tab"
                 aria-selected={view === v}
-                className={cn(view === v && 'on')}
+                className={cn(
+                  view === v && 'on',
+                  v === 'table' && 'hidden md:inline-block'
+                )}
                 onClick={() => setView(v)}
               >
                 {v.charAt(0).toUpperCase() + v.slice(1)}
@@ -116,9 +119,28 @@ export function JobTable({
         <DeliveredView jobs={filtered} renderRowActions={renderRowActions} />
       ) : (
         <>
-          <TableView jobs={filtered} onOpen={onOpen} renderRowActions={renderRowActions} />
-          <GridView jobs={filtered} onOpen={onOpen} renderRowActions={renderRowActions} />
-          <ListView jobs={filtered} onOpen={onOpen} renderRowActions={renderRowActions} />
+          <TableView
+            jobs={filtered}
+            onOpen={onOpen}
+            renderRowActions={renderRowActions}
+            className={cn(view === 'table' ? 'hidden md:block' : 'hidden')}
+          />
+          <GridView
+            jobs={filtered}
+            onOpen={onOpen}
+            renderRowActions={renderRowActions}
+            className={cn(
+              view === 'grid' && "grid",
+              view === 'table' && "grid md:hidden",
+              view === 'list' && "hidden"
+            )}
+          />
+          <ListView
+            jobs={filtered}
+            onOpen={onOpen}
+            renderRowActions={renderRowActions}
+            className={cn(view === 'list' ? 'block' : 'hidden')}
+          />
         </>
       )}
     </div>
@@ -153,7 +175,7 @@ function DeliveredView({
               <div className="text-[13px] font-bold text-text-muted">{formatDate(job.created)}</div>
             </div>
           </div>
-          
+
           <div className="border-t border-[var(--glass-border)] pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-[13px] text-text-muted">
               {job.summary}
@@ -242,18 +264,21 @@ function TableView({
   jobs,
   onOpen,
   renderRowActions,
+  className,
 }: {
   jobs: Job[];
   onOpen?: (job: Job) => void;
   renderRowActions?: (job: Job) => ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="table-view">
+    <div className={cn("table-view", className)}>
       <table className="data-table">
         <thead>
           <tr>
             <th>Job</th>
             <th>Design Name</th>
+            <th>Preview</th>
             <th>Order</th>
             <th>Priority</th>
             <th>Status</th>
@@ -275,26 +300,25 @@ function TableView({
                   />
                   <div>
                     <span className="ref-code">{j.id}</span>
-                    <div className="text-[9.5px] text-text-faint mt-0.5">{j.ref}</div>
+                    <div className="text-[10.5px] text-text-muted font-medium mt-0.5">{j.ref}</div>
                   </div>
                 </div>
               </td>
               <td>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="font-semibold text-[12.5px] leading-tight"
-                    style={{ maxWidth: 100, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
-                  >
-                    {j.design}
-                  </span>
-                  <img
-                    className="table-preview"
-                    src={jobImage(j, 1, 220, 160)}
-                    alt={`${j.design} preview`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
+                <span
+                  className="font-bold text-[14px] text-text-main leading-snug block max-w-[260px]"
+                >
+                  {j.design}
+                </span>
+              </td>
+              <td>
+                <img
+                  className="table-preview"
+                  src={jobImage(j, 1, 220, 160)}
+                  alt={`${j.design} preview`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
               </td>
               <td><Badge accent={orderBadgeAccent(j.order)}>{j.order}</Badge></td>
               <td><PriorityChip priority={j.priority} /></td>
@@ -336,13 +360,15 @@ function GridView({
   jobs,
   onOpen,
   renderRowActions,
+  className,
 }: {
   jobs: Job[];
   onOpen?: (job: Job) => void;
   renderRowActions?: (job: Job) => ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="grid-view">
+    <div className={cn("grid-view grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-4 p-1 md:p-3", className)}>
       {jobs.map((j) => {
         const actionRequired = j.status === 'Pending Client Confirm' || j.status === 'Quote Approved';
         const agencyPrice = j.negotiation?.agencyOffer ?? j.adminPrice ?? null;
@@ -360,35 +386,36 @@ function GridView({
               }
             }}
           >
-            <div className="jc-img">
+            <div className="jc-img relative">
               <img
+                className="w-full h-[110px] md:h-[140px] object-cover block"
                 src={jobImage(j, 2, 400, 300)}
                 alt={j.design}
                 loading="lazy"
                 referrerPolicy="no-referrer"
               />
-              <span className={cn('jc-status-overlay badge', statusBadgeAccent(j.status))}>
+              <span className={cn('jc-status-overlay badge absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[9px] md:top-2.5 md:right-2.5 md:px-2 md:py-1 md:text-[10px]', statusBadgeAccent(j.status))}>
                 {statusDisplay(j.status)}
               </span>
             </div>
-            <div className="jc-body">
-              <div className="jc-title">{j.design}</div>
-              <div className="jc-desc">{j.summary}</div>
-              <div className="jc-meta">
-                <span className="jc-id">{j.id}</span>
+            <div className="jc-body p-2.5 md:p-3.5 min-h-0 md:min-h-[140px] flex flex-col gap-1.5 md:gap-2">
+              <div className="jc-title text-[12.5px] md:text-[13.5px] font-bold leading-tight">{j.design}</div>
+              <div className="jc-desc text-[11px] md:text-[11.5px] text-text-muted leading-relaxed hidden md:block">{j.summary}</div>
+              <div className="jc-meta flex gap-1.5 md:gap-2 items-center flex-wrap">
+                <span className="jc-id text-[9px] px-1.5 py-0.5 md:text-[10.5px] md:px-2 md:py-0.5">{j.id}</span>
                 <Badge accent={orderBadgeAccent(j.order)}>{j.order}</Badge>
               </div>
-              <div className="jc-meta">
+              <div className="jc-meta flex gap-1.5 md:gap-2 items-center flex-wrap">
                 <PriorityChip priority={j.priority} />
                 {j.etaHours ? (
-                  <span className="jc-eta">
+                  <span className="jc-eta text-[9.5px] px-1.5 py-0.5 md:text-[11px] md:px-2 md:py-0.5 inline-flex items-center gap-1">
                     <Clock aria-hidden className="w-3 h-3" />
                     {j.etaHours}h
                   </span>
                 ) : null}
               </div>
               {actionRequired ? (
-                <div className="jc-action">
+                <div className="jc-action p-1.5 text-[9.5px] rounded-md md:p-2 md:text-[11px] md:rounded-lg">
                   <CheckCircle2 aria-hidden className="w-3.5 h-3.5 mt-px shrink-0" />
                   <span>
                     Agency price ready{agencyPrice ? ` — $${agencyPrice}` : ''} ·{' '}
@@ -409,17 +436,19 @@ function ListView({
   jobs,
   onOpen,
   renderRowActions,
+  className,
 }: {
   jobs: Job[];
   onOpen?: (job: Job) => void;
   renderRowActions?: (job: Job) => ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="list-view">
+    <div className={cn("list-view", className)}>
       {jobs.map((j) => (
         <div
           key={j.id}
-          className="list-item"
+          className="job-list-item"
           onClick={() => onOpen?.(j)}
           role="button"
           tabIndex={0}
@@ -433,22 +462,19 @@ function ListView({
             />
           </div>
           <div className="list-body">
-            <div className="font-bold text-[13px]">{j.design}</div>
-            <div className="text-text-muted text-[11.5px] leading-snug">{j.summary}</div>
-            <div className="text-text-muted text-[11.5px]">
-              {j.id} · {j.order} · {j.status}
+            <div className="list-title">{j.design}</div>
+            <div className="list-desc">{j.summary}</div>
+            <div className="list-meta">
+              {j.ref || j.id} · {j.order} · {j.status}
             </div>
             {renderRowActions ? renderRowActions(j) : null}
           </div>
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <div className="text-[12px] text-text-muted whitespace-nowrap">{formatDate(j.created)}</div>
+          <div className="flex flex-col items-end gap-1.5 shrink-0">
+            <div className="list-date">{formatDate(j.created)}</div>
             {j.etaHours ? (
-              <div
-                className="text-[12px] font-semibold flex items-center gap-1 whitespace-nowrap"
-                style={{ color: 'var(--color-blue)' }}
-              >
-                <Clock className="w-3 h-3" />
-                {j.etaHours}h
+              <div className="list-eta">
+                <Clock className="w-3.5 h-3.5 stroke-[2]" />
+                <span>{j.etaHours}h</span>
               </div>
             ) : null}
           </div>

@@ -34,10 +34,19 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({ title, action, className }: SectionHeaderProps) {
+  const showLine = typeof title === 'string' && title === 'Recent Jobs';
+
   return (
-    <div className={cn('sec-header', className)}>
-      <h2 className="sec-title">{title}</h2>
-      {action ? <div className="sec-action">{action}</div> : null}
+    <div className={cn('sec-header flex items-center gap-4 w-full mb-5', className)}>
+      <h2 className="sec-title text-[16px] font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">{title}</h2>
+      {showLine ? (
+        <div className="flex-grow border-t border-[#E4E8F0] dark:border-glass-border/40" />
+      ) : null}
+      {action ? (
+        <div className={cn('sec-action whitespace-nowrap', !showLine && 'ml-auto')}>
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }

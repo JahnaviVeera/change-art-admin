@@ -160,39 +160,47 @@ export function ClientDashboardPage() {
             </>
           }
           action={
-            <div className="flex items-center gap-2 flex-wrap">
-              <select
-                className="btn btn-outline !rounded-full"
-                style={{ padding: '8px 14px' }}
-                value={range}
-                onChange={(e) => setRange(e.target.value as DashRange)}
-                aria-label="Time range"
-              >
-                {DASH_RANGES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-              <Link to="/client/jobs" className="btn btn-outline !rounded-full">
-                <FileText aria-hidden className="w-4 h-4" />
-                View Projects
-              </Link>
-              <Link to="/client/quote" className="btn btn-outline !rounded-full">
-                <PlusCircle aria-hidden className="w-4 h-4" />
-                Request Quote
-
-              </Link>
+            <div className="grid grid-cols-3 gap-2 w-full md:flex md:w-auto md:items-center">
+              <div className="contents md:flex md:items-center md:gap-2">
+                <select
+                  className="btn btn-outline !rounded-full w-full md:w-auto text-md md:text-sm px-5 py-3 font-medium bg-white text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-200 dark:border-glass-border/40"
+                  value={range}
+                  onChange={(e) => setRange(e.target.value as DashRange)}
+                  aria-label="Time range"
+                >
+                  {DASH_RANGES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+                <Link
+                  to="/client/jobs"
+                  className="btn btn-outline !rounded-full w-full md:w-auto justify-center gap-1.5 text-md md:text-sm px-5 py-3 bg-white text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-200 dark:border-glass-border/40"
+                >
+                  <FileText aria-hidden className="w-3.5 h-3.5" />
+                  View Projects
+                </Link>
+                <Link
+                  to="/client/quote"
+                  className="btn btn-outline !rounded-full w-full md:w-auto justify-center gap-1.5 text-md md:text-sm px-5 py-3 bg-white text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-200 dark:border-glass-border/40"
+                >
+                  <PlusCircle aria-hidden className="w-3.5 h-3.5" />
+                  Request Quote
+                </Link>
+              </div>
               <Link
                 to="/client/place-order"
-                className="btn btn-crimson !rounded-full w-full sm:w-auto justify-center"
+                className="btn btn-crimson !rounded-full col-span-3 md:col-span-1 w-full md:w-auto justify-center gap-1.5 text-sm px-5 py-3 font-bold whitespace-nowrap bg-[#A81C30] hover:bg-[#8B1424] text-white shadow-sm mt-1 md:mt-0"
               >
-                <Plus aria-hidden className="w-4 h-4" />
+                <Plus aria-hidden className="w-3.5 h-3.5" />
                 Place Order
               </Link>
             </div>
           }
         />
+
+        <hr className="border-slate-300/80 dark:border-glass-border/40 my-6" />
 
         <StatGrid
           className="!grid-cols-2 md:!grid-cols-3"

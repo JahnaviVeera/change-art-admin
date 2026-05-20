@@ -25,6 +25,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const openMobile = useCallback(() => setMobileNavOpen(true), []);
 
   const title = pageTitleFromRoute(user?.role, location.pathname);
+  const resolvedSubtitle = title.subtitle?.replace('{user.name}', user?.name || '');
 
   return (
     <div className="min-h-screen flex">
@@ -43,7 +44,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main column */}
       <div className="flex-1 min-w-0 flex flex-col md:ml-[var(--sidebar-w)]">
-        <Topbar title={title.title} subtitle={title.subtitle} onOpenMobileNav={openMobile} />
+        <Topbar title={title.title} subtitle={resolvedSubtitle} onOpenMobileNav={openMobile} />
 
         <main
           id="main-content"
@@ -67,7 +68,9 @@ function pageTitleFromRoute(
   const cfg = NAV_CONFIG[role];
   for (const section of cfg.sections) {
     const match = section.items.find((it) => it.to === pathname);
-    if (match) return { title: match.label, subtitle: cfg.label };
+    if (match) {
+      return { title: match.label, subtitle: match.subtitle || cfg.label };
+    }
   }
   return { title: cfg.label };
 }
