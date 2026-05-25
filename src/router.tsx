@@ -10,14 +10,6 @@ import { LoginPage } from '@routes/auth/LoginPage';
 import { RegisterPage } from '@routes/auth/RegisterPage';
 import { ForgotPasswordPage } from '@routes/auth/ForgotPasswordPage';
 
-// Client portal
-import { ClientDashboardPage } from '@routes/client/ClientDashboardPage';
-import { ClientJobsPage } from '@routes/client/ClientJobsPage';
-import { ClientTrackingPage } from '@routes/client/ClientTrackingPage';
-import { ClientQuotePage } from '@routes/client/ClientQuotePage';
-import { ClientPlaceOrderPage } from '@routes/client/ClientPlaceOrderPage';
-import { ClientProfilePage } from '@routes/client/ClientProfilePage';
-
 // CS panel
 import { CSDashboardPage } from '@routes/cs/CSDashboardPage';
 import { CSNewQuotesPage } from '@routes/cs/CSNewQuotesPage';
@@ -89,26 +81,6 @@ export const router = createBrowserRouter([
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
-    ],
-  },
-
-  // Client portal
-  {
-    path: '/client',
-    element: (
-      <RoleGuard allow={[UserRole.CLIENT]}>
-        <DashboardLayout>
-          <Outlet />
-        </DashboardLayout>
-      </RoleGuard>
-    ),
-    children: [
-      { index: true, element: <ClientDashboardPage /> },
-      { path: 'jobs', element: <ClientJobsPage /> },
-      { path: 'tracking', element: <ClientTrackingPage /> },
-      { path: 'quote', element: <ClientQuotePage /> },
-      { path: 'place-order', element: <ClientPlaceOrderPage /> },
-      { path: 'profile', element: <ClientProfilePage /> },
     ],
   },
 
@@ -256,7 +228,7 @@ export const router = createBrowserRouter([
  * after hitting a route outside their permission set.
  */
 export const ROLE_HOME: Record<UserRole, string> = {
-  [UserRole.CLIENT]: '/client',
+  [UserRole.CLIENT]: '/login',
   [UserRole.CS]: '/cs',
   [UserRole.TEAM_LEAD]: '/team-lead',
   [UserRole.DESIGNER]: '/designer',
@@ -276,7 +248,6 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
-  CLIENT: '/client',
   CS: '/cs',
   TEAM_LEAD: '/team-lead',
   DESIGNER: '/designer',

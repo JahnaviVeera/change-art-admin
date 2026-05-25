@@ -1,6 +1,6 @@
 import { Menu, Moon, Search, SendHorizontal, Sun } from 'lucide-react';
 import { useTheme } from '@providers/ThemeProvider';
-import { Theme, UserRole } from '@contracts';
+import { Theme } from '@contracts';
 import { useSessionUser } from '@modules/auth/stores/auth-store';
 import { initials } from '@lib/utils';
 import { NotificationBell } from './NotificationBell';
@@ -33,6 +33,14 @@ export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
       >
         <Menu aria-hidden className="w-4 h-4" />
       </button>
+
+      {/* Logo — shown on mobile (sidebar hidden) and as subtle brand on desktop */}
+      <img
+        src="/ch-logo.png"
+        alt="Change!"
+        className="h-6 w-auto dark:invert flex-shrink-0"
+        draggable={false}
+      />
 
       <div className="min-w-0 flex-1">
         <h1 className="text-[17px] font-bold text-text-main leading-tight truncate">{title}</h1>
@@ -102,7 +110,7 @@ export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
                 {user.name}
               </div>
               <div className="text-[10.5px] text-text-muted font-medium truncate max-w-[140px]">
-                {user.role === UserRole.CLIENT ? 'Client Portal' : NAV_CONFIG[user.role]?.label || 'Production Platform'}
+                {NAV_CONFIG[user.role]?.label || 'Production Platform'}
               </div>
             </div>
           </div>

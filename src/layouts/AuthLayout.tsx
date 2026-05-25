@@ -1,7 +1,10 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuthStatus, useSessionUser } from '@modules/auth/stores/auth-store';
+import { useEffect } from 'react';
+import { useAuthStatus, useSessionUser, useAuthStore } from '@modules/auth/stores/auth-store';
 import { pathForRole } from '@/router';
 import { config } from '@lib/config';
+import { UserRole } from '@contracts';
+import { authService } from '@modules/auth/services';
 
 /**
  * Unauthenticated-routes shell. Houses the login / register / forgot-password
@@ -14,9 +17,19 @@ import { config } from '@lib/config';
 export function AuthLayout() {
   const status = useAuthStatus();
   const user = useSessionUser();
+  const reset = useAuthStore((s) => s.reset);
   const location = useLocation();
 
-  if (status === 'authenticating') {
+  // If a CLIENT session somehow exists, sign it out immediately to prevent
+  // an infinite redirect loop (CLIENT has no route in this admin app).
+  const isStuckClient = status === 'authenticated' && user?.role === UserRole.CLIENT;
+  useEffect(() => {
+    if (isStuckClient) {
+      authService.signOut().then(() => reset());
+    }
+  }, [isStuckClient, reset]);
+
+  if (status === 'authenticating' || isStuckClient) {
     return null;
   }
 
@@ -29,22 +42,14 @@ export function AuthLayout() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-4 py-10 relative">
       <div className="w-full max-w-[460px] glass-heavy rounded-2xl px-9 py-11 anim-login">
-        <header className="mb-7 flex items-center gap-3">
-          <div
-            aria-hidden
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-lg font-extrabold"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-crimson), var(--color-crimson-dim))',
-              boxShadow: '0 4px 20px var(--color-crimson-glow)',
-              border: '1px solid rgba(255,255,255,0.15)',
-            }}
-          >
-            C!
-          </div>
-          <div>
-            <div className="text-[15px] font-bold tracking-wide">{config.appName}</div>
-            <div className="text-[11px] text-text-muted">Production lifecycle for creative agencies</div>
-          </div>
+        <header className="mb-7">
+          <img
+            src="/ch-logo.png"
+            alt="Change! Digitizing & Design Services"
+            className="h-11 w-auto dark:invert mb-2"
+            draggable={false}
+          />
+          <p className="text-[11px] text-text-muted">{config.appName} · Production lifecycle for creative agencies</p>
         </header>
 
         <Outlet />

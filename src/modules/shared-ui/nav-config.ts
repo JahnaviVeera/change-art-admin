@@ -1,20 +1,16 @@
 import {
-  Activity,
   ClipboardList,
   FileCheck,
   Gauge,
   Inbox,
   LayoutDashboard,
   PencilRuler,
-  PlusCircle,
   ScrollText,
   Send,
   Settings,
   ShieldCheck,
-  ShoppingCart,
   Sparkles,
   Truck,
-  User,
   Users,
   Wrench,
   type LucideIcon,
@@ -55,36 +51,8 @@ export interface RoleNavConfig {
   mobile: NavItem[]; // 5 bottom-nav items max
 }
 
-export const NAV_CONFIG: Record<UserRole, RoleNavConfig> = {
-  [UserRole.CLIENT]: {
-    label: 'Client Portal',
-    sections: [
-      {
-        id: 'my-portal',
-        label: 'My Portal',
-        items: [
-          { id: 'dashboard', label: 'Dashboard', to: '/client', icon: LayoutDashboard, subtitle: 'Welcome back, {user.name}' },
-          { id: 'jobs', label: 'My Projects', to: '/client/jobs', icon: ClipboardList, badge: 3, badgeAccent: 'navy', subtitle: 'All your current and past orders' },
-          { id: 'quote', label: 'Request Quote', to: '/client/quote', icon: PlusCircle, subtitle: 'Submit a new quote request' },
-          { id: 'place_order', label: 'Place Order', to: '/client/place-order', icon: ShoppingCart, subtitle: 'Submit a new order request' },
-          { id: 'tracking', label: 'Delivered Projects', to: '/client/tracking', icon: Activity, subtitle: 'Your delivered projects — downloads & modifications' },
-        ],
-      },
-      {
-        id: 'account',
-        label: 'Account',
-        items: [{ id: 'profile', label: 'My Profile', to: '/client/profile', icon: User, subtitle: 'Your account information' }],
-      },
-    ],
-    mobile: [
-      { id: 'dashboard', label: 'Home', to: '/client', icon: LayoutDashboard },
-      { id: 'jobs', label: 'Projects', to: '/client/jobs', icon: ClipboardList },
-      { id: 'quote', label: 'Quote', to: '/client/quote', icon: PlusCircle },
-      { id: 'tracking', label: 'Delivered', to: '/client/tracking', icon: Activity },
-      { id: 'profile', label: 'Profile', to: '/client/profile', icon: User },
-    ],
-  },
-
+// CLIENT is intentionally absent — this app is admin/internal only.
+export const NAV_CONFIG = {
   [UserRole.CS]: {
     label: 'Client Servicing',
     sections: [
@@ -272,4 +240,4 @@ export const NAV_CONFIG: Record<UserRole, RoleNavConfig> = {
       { id: 'reports', label: 'Reports', to: '/admin/reports', icon: Wrench },
     ],
   },
-};
+} as unknown as Record<UserRole, RoleNavConfig>;
