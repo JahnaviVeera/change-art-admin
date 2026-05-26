@@ -201,8 +201,8 @@ export const NAV_CONFIG = {
         label: 'Administration',
         items: [
           { id: 'dashboard', label: 'Admin Dashboard', to: '/admin', icon: LayoutDashboard },
-          { id: 'new-jobs',    label: 'New Jobs',        to: '/admin/new-jobs',    icon: ScrollText, badge: 7, badgeAccent: 'crimson' },
-          { id: 'new-quotes',  label: 'New Quotes',      to: '/admin/new-quotes',  icon: Inbox,      badge: 6, badgeAccent: 'amber' },
+          { id: 'new-jobs',    label: 'New Jobs',        to: '/admin/new-jobs',    icon: ScrollText },
+          { id: 'new-quotes',  label: 'New Quotes',      to: '/admin/new-quotes',  icon: Inbox },
           { id: 'jobs',       label: 'All Jobs',         to: '/admin/jobs',        icon: ClipboardList },
           { id: 'clients',    label: 'Clients',          to: '/admin/clients',     icon: Users },
           { id: 'users',      label: 'User Management',  to: '/admin/users',       icon: ShieldCheck },

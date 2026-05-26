@@ -31,7 +31,7 @@ export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
       </button>
 
       <div className="min-w-0 flex-1">
-        <h1 className="text-[15px] font-medium text-text-main leading-tight truncate">{title}</h1>
+        <h1 className="text-[20px] font-semibold text-text-main leading-tight truncate tracking-wide">{title}</h1>
         {subtitle ? (
           <p className="text-[11.5px] text-text-muted mt-0.5 font-medium truncate">{subtitle}</p>
         ) : null}

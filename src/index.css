@@ -717,21 +717,21 @@ html[data-theme='light'] .mb-track {
   }
 
   .stat-label {
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 10.5px;
+    font-weight: 600;
     color: var(--text-muted);
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .stat-value {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     line-height: 1;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     color: var(--text-main);
   }
 
@@ -826,13 +826,25 @@ html[data-theme='light'] .mb-track {
 
   .sec-title {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 600;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.04em;
     color: var(--text-main);
     display: inline-flex;
     align-items: center;
     gap: 6px;
+  }
+
+  .sec-action-link {
+    font-size: 11.5px;
+    color: var(--color-crimson);
+    font-weight: 600;
+    transition: opacity 0.2s;
+    text-decoration: none;
+  }
+
+  .sec-action-link:hover {
+    opacity: 0.7;
   }
 
   .sec-action {
@@ -2109,6 +2121,112 @@ html[data-theme='light'] .mb-track {
     background: var(--color-navy-ink);
     color: #fff;
     border-color: var(--color-navy-ink);
+  }
+
+  /* ── Stat cards: solid white + dark ink values ── */
+  html[data-theme='light'] .stat-card {
+    background: #FFFFFF;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: #E4E8F0;
+    border-top-color: #E4E8F0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  html[data-theme='light'] .stat-card:hover {
+    border-color: #CDD3E0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+  }
+
+  html[data-theme='light'] .stat-card.crimson .stat-value,
+  html[data-theme='light'] .stat-card.amber .stat-value,
+  html[data-theme='light'] .stat-card.gold .stat-value,
+  html[data-theme='light'] .stat-card.teal .stat-value,
+  html[data-theme='light'] .stat-card.green .stat-value,
+  html[data-theme='light'] .stat-card.blue .stat-value,
+  html[data-theme='light'] .stat-card.purple .stat-value {
+    color: #0D1B2A;
+  }
+
+  html[data-theme='light'] .stat-label {
+    color: #9CA3AF;
+  }
+
+  html[data-theme='light'] .stat-delta {
+    color: #6B7585;
+  }
+
+  html[data-theme='light'] .stat-delta.up {
+    color: #059669;
+  }
+
+  html[data-theme='light'] .stat-delta.down {
+    color: #DC2626;
+  }
+
+  /* ── Panel: solid white ── */
+  html[data-theme='light'] .panel {
+    background: #FFFFFF;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: #E4E8F0;
+    border-top-color: #E4E8F0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  html[data-theme='light'] .panel:hover {
+    border-color: #CDD3E0;
+  }
+
+  html[data-theme='light'] .panel-title {
+    border-bottom-color: #E4E8F0;
+  }
+
+  /* ── Topbar: solid white ── */
+  html[data-theme='light'] header.glass {
+    background: #FFFFFF;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom-color: #E4E8F0;
+    box-shadow: 0 1px 0 #E4E8F0;
+  }
+
+  /* ── Buttons: readable on white ── */
+  html[data-theme='light'] .btn-green {
+    background: #ECFDF5;
+    border-color: rgba(5, 150, 105, 0.2);
+    color: #059669;
+  }
+
+  html[data-theme='light'] .btn-green:hover:not(:disabled) {
+    background: #D1FAE5;
+    border-color: rgba(5, 150, 105, 0.35);
+  }
+
+  html[data-theme='light'] .btn-red {
+    background: #FDF0F2;
+    border-color: rgba(178, 34, 52, 0.2);
+    color: #B22234;
+  }
+
+  html[data-theme='light'] .btn-red:hover:not(:disabled) {
+    background: #FBE0E4;
+    border-color: rgba(178, 34, 52, 0.35);
+  }
+
+  /* ── Scrollbar visible on light backgrounds ── */
+  html[data-theme='light'] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.14);
+  }
+
+  html[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-crimson);
+  }
+
+  /* ── tbl-search-wrap light mode: readable bg ── */
+  html[data-theme='light'] .tbl-search-wrap {
+    background: #F8F9FB;
+    border-color: #E4E8F0;
   }
 }
 

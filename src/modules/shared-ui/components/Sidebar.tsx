@@ -5,6 +5,7 @@ import { NAV_CONFIG, type NavItem } from '@modules/shared-ui/nav-config';
 import { authService } from '@modules/auth/services';
 import { cn, initials } from '@lib/utils';
 import { UserRole } from '@contracts';
+import { useAdminNavBadges } from '@modules/admin-panel/hooks/use-admin-badges';
 
 const PROFILE_PATH: Record<UserRole, string> = {
   [UserRole.CLIENT]:    '/login',
@@ -25,6 +26,9 @@ interface SidebarProps {
 export function Sidebar({ collapsedOnMobile, onNavigateMobile }: SidebarProps) {
   const user = useSessionUser();
   const reset = useAuthStore((s) => s.reset);
+  // Must be called unconditionally (Rules of Hooks). enabled=false when no user
+  // or non-admin role, so no fetch fires in those cases.
+  const adminBadges = useAdminNavBadges(user?.role === UserRole.ADMIN);
 
   if (!user) return null;
 
@@ -69,7 +73,12 @@ export function Sidebar({ collapsedOnMobile, onNavigateMobile }: SidebarProps) {
             </div>
             <ul>
               {section.items.map((item) => (
-                <SidebarItem key={item.id} item={item} onClick={onNavigateMobile} />
+                <SidebarItem
+                  key={item.id}
+                  item={item}
+                  onClick={onNavigateMobile}
+                  dynamicBadge={adminBadges[item.id]}
+                />
               ))}
             </ul>
           </div>
@@ -117,8 +126,19 @@ export function Sidebar({ collapsedOnMobile, onNavigateMobile }: SidebarProps) {
   );
 }
 
-function SidebarItem({ item, onClick }: { item: NavItem; onClick: () => void }) {
+function SidebarItem({
+  item,
+  onClick,
+  dynamicBadge,
+}: {
+  item: NavItem;
+  onClick: () => void;
+  dynamicBadge?: number;
+}) {
   const Icon = item.icon;
+  // Prefer dynamic count (from API); fall back to static value from nav-config.
+  const badge = dynamicBadge ?? item.badge;
+  const accent = item.badgeAccent ?? 'crimson';
   return (
     <li>
       <NavLink
@@ -129,16 +149,16 @@ function SidebarItem({ item, onClick }: { item: NavItem; onClick: () => void }) 
       >
         <Icon aria-hidden className="w-[15px] h-[15px] flex-shrink-0" />
         <span className="truncate">{item.label}</span>
-        {item.badge !== undefined && item.badge > 0 ? (
+        {badge !== undefined && badge > 0 ? (
           <span
             className={cn(
               'nav-badge',
-              item.badgeAccent === 'amber' && 'amber',
-              item.badgeAccent === 'navy' && 'navy',
+              accent === 'amber' && 'amber',
+              accent === 'navy' && 'navy',
             )}
-            aria-label={`${item.badge} new`}
+            aria-label={`${badge} new`}
           >
-            {item.badge}
+            {badge}
           </span>
         ) : null}
       </NavLink>
