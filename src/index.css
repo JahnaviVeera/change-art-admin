@@ -425,8 +425,8 @@ html[data-theme='light'] .mb-track {
 
   /* Role pill — shows active role label below the brand logo */
   .role-pill {
-    margin: 10px 10px 0;
-    padding: 7px 12px;
+    margin: 8px 10px 0;
+    padding: 5px 10px;
     background: linear-gradient(135deg, rgba(196, 30, 58, 0.12), rgba(10, 26, 58, 0.3));
     border: 1px solid rgba(196, 30, 58, 0.25);
     border-radius: 8px;
@@ -459,9 +459,9 @@ html[data-theme='light'] .mb-track {
 
   /* Navigation item — active state matches demo */
   .nav-item {
-    @apply relative flex items-center gap-2.5 px-3 rounded-lg mb-0.5 text-[12.5px] font-medium cursor-pointer transition;
-    padding-top: 9px;
-    padding-bottom: 9px;
+    @apply relative flex items-center gap-2.5 px-3 rounded-lg mb-px text-[12.5px] font-medium cursor-pointer transition;
+    padding-top: 6px;
+    padding-bottom: 6px;
     color: var(--text-muted);
     border: 1px solid transparent;
   }
@@ -587,7 +587,7 @@ html[data-theme='light'] .mb-track {
 
   /* ─ Greeting hero ─ */
   .greeting-hero {
-    padding: 14px 0 12px;
+    padding: 8px 0 6px;
   }
 
   .greeting-date {
@@ -632,8 +632,8 @@ html[data-theme='light'] .mb-track {
     border-top-color: var(--glass-border-bright);
     border-radius: var(--radius);
     box-shadow: var(--glass-shadow);
-    padding: 16px;
-    margin-bottom: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
     transition: var(--transition);
   }
 
@@ -645,8 +645,8 @@ html[data-theme='light'] .mb-track {
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 10px;
   }
 
   /* ─ Section header ─ */
@@ -668,7 +668,7 @@ html[data-theme='light'] .mb-track {
     border-top-color: var(--glass-border-bright);
     border-radius: var(--radius);
     box-shadow: var(--glass-shadow);
-    padding: 14px 14px 14px 20px;
+    padding: 10px 12px 10px 16px;
     transition: var(--transition);
   }
 
@@ -722,16 +722,16 @@ html[data-theme='light'] .mb-track {
     color: var(--text-muted);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
 
   .stat-value {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.02em;
     line-height: 1;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     color: var(--text-main);
   }
 
@@ -821,7 +821,7 @@ html[data-theme='light'] .mb-track {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .sec-title {
@@ -882,7 +882,7 @@ html[data-theme='light'] .mb-track {
     border: none;
     border-radius: 0;
     box-shadow: none;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -894,7 +894,7 @@ html[data-theme='light'] .mb-track {
   }
 
   .data-table thead th {
-    padding: 10px 12px;
+    padding: 7px 12px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
@@ -921,7 +921,7 @@ html[data-theme='light'] .mb-track {
   }
 
   .data-table tbody td {
-    padding: 10px 12px;
+    padding: 7px 12px;
     font-size: 13px;
     color: var(--text-main);
     vertical-align: middle;
@@ -2779,7 +2779,7 @@ html[data-theme='light'] .mb-track {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 6px 0;
+    padding: 4px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
 

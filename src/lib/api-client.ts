@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import {
   ERROR_CODES,
   ERROR_MESSAGES,
@@ -116,9 +116,14 @@ interface RequestOptions extends Omit<AxiosRequestConfig, 'method' | 'url' | 'da
   signal?: AbortSignal;
 }
 
-async function unwrap<T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<T> {
+async function unwrap<T>(promise: Promise<{ data: ApiResponse<T>; status?: number }>): Promise<T> {
   const res = await promise;
-  if (!res.data || res.data.success !== true) {
+  // 204 No Content (e.g. DELETE) is a valid success that carries no envelope —
+  // axios leaves `data` as an empty string. Return undefined for these.
+  if (res.status === 204 || res.data == null || (res.data as unknown) === '') {
+    return undefined as T;
+  }
+  if (res.data.success !== true) {
     throw new ApiClientError({
       code: ERROR_CODES.UNKNOWN_ERROR,
       message: 'API returned a non-envelope response',
