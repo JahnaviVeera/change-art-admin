@@ -11,7 +11,6 @@ interface GreetingHeroProps {
 
 const DATE_FMT = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
-  year: 'numeric',
   month: 'short',
   day: 'numeric',
 });

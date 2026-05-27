@@ -10,14 +10,6 @@ import { LoginPage } from '@routes/auth/LoginPage';
 import { RegisterPage } from '@routes/auth/RegisterPage';
 import { ForgotPasswordPage } from '@routes/auth/ForgotPasswordPage';
 
-// Client portal
-import { ClientDashboardPage } from '@routes/client/ClientDashboardPage';
-import { ClientJobsPage } from '@routes/client/ClientJobsPage';
-import { ClientTrackingPage } from '@routes/client/ClientTrackingPage';
-import { ClientQuotePage } from '@routes/client/ClientQuotePage';
-import { ClientPlaceOrderPage } from '@routes/client/ClientPlaceOrderPage';
-import { ClientProfilePage } from '@routes/client/ClientProfilePage';
-
 // CS panel
 import { CSDashboardPage } from '@routes/cs/CSDashboardPage';
 import { CSNewQuotesPage } from '@routes/cs/CSNewQuotesPage';
@@ -29,6 +21,7 @@ import { CSAmendmentsPage } from '@routes/cs/CSAmendmentsPage';
 import { CSCreateQuotePage } from '@routes/cs/CSCreateQuotePage';
 import { CSPlaceOrderPage } from '@routes/cs/CSPlaceOrderPage';
 import { CSClientsPage } from '@routes/cs/CSClientsPage';
+import { CSProfilePage } from '@routes/cs/CSProfilePage';
 
 // Team Lead
 import { TeamLeadDashboardPage } from '@routes/team-lead/TeamLeadDashboardPage';
@@ -67,6 +60,7 @@ import { AdminCreateQuotePage } from '@routes/admin/AdminCreateQuotePage';
 import { AdminPlaceOrderPage } from '@routes/admin/AdminPlaceOrderPage';
 import { AdminReportsPage } from '@routes/admin/AdminReportsPage';
 import { AdminSettingsPage } from '@routes/admin/AdminSettingsPage';
+import { AdminProfilePage } from '@routes/admin/AdminProfilePage';
 
 import { NotFoundPage } from '@routes/NotFoundPage';
 
@@ -92,26 +86,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Client portal
-  {
-    path: '/client',
-    element: (
-      <RoleGuard allow={[UserRole.CLIENT]}>
-        <DashboardLayout>
-          <Outlet />
-        </DashboardLayout>
-      </RoleGuard>
-    ),
-    children: [
-      { index: true, element: <ClientDashboardPage /> },
-      { path: 'jobs', element: <ClientJobsPage /> },
-      { path: 'tracking', element: <ClientTrackingPage /> },
-      { path: 'quote', element: <ClientQuotePage /> },
-      { path: 'place-order', element: <ClientPlaceOrderPage /> },
-      { path: 'profile', element: <ClientProfilePage /> },
-    ],
-  },
-
   // CS panel
   {
     path: '/cs',
@@ -133,6 +107,7 @@ export const router = createBrowserRouter([
       { path: 'create-quote', element: <CSCreateQuotePage /> },
       { path: 'place-order', element: <CSPlaceOrderPage /> },
       { path: 'clients', element: <CSClientsPage /> },
+      { path: 'profile', element: <CSProfilePage /> },
     ],
   },
 
@@ -243,6 +218,7 @@ export const router = createBrowserRouter([
       { path: 'place-order', element: <AdminPlaceOrderPage /> },
       { path: 'reports', element: <AdminReportsPage /> },
       { path: 'settings', element: <AdminSettingsPage /> },
+      { path: 'profile', element: <AdminProfilePage /> },
     ],
   },
 
@@ -256,7 +232,7 @@ export const router = createBrowserRouter([
  * after hitting a route outside their permission set.
  */
 export const ROLE_HOME: Record<UserRole, string> = {
-  [UserRole.CLIENT]: '/client',
+  [UserRole.CLIENT]: '/login',
   [UserRole.CS]: '/cs',
   [UserRole.TEAM_LEAD]: '/team-lead',
   [UserRole.DESIGNER]: '/designer',
@@ -276,7 +252,6 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
-  CLIENT: '/client',
   CS: '/cs',
   TEAM_LEAD: '/team-lead',
   DESIGNER: '/designer',

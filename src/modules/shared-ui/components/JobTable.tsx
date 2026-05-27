@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, useCallback, type ReactNode } from 'react';
+import { JobModal } from './JobModal';
 import { Inbox, Clock, CheckCircle2, Download, Search } from 'lucide-react';
 
 function formatDate(dateStr: string): string {
@@ -55,6 +56,11 @@ export function JobTable({
 }: JobTableProps) {
   const [view, setView] = useState<JobView>(defaultView);
   const [query, setQuery] = useState('');
+  const [modalJob, setModalJob] = useState<Job | null>(null);
+
+  const handleOpen = useCallback((job: Job) => {
+    if (onOpen) { onOpen(job); } else { setModalJob(job); }
+  }, [onOpen]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -75,7 +81,7 @@ export function JobTable({
     );
   }
 
-  const renderRowActions = renderActions ?? (showActions ? defaultActions(onOpen) : undefined);
+  const renderRowActions = renderActions ?? (showActions ? defaultActions(handleOpen) : undefined);
 
   return (
     <div className={variant === 'delivered' ? 'w-full' : 'jobs-root'} data-view={view}>
@@ -86,7 +92,7 @@ export function JobTable({
             <input
               type="text"
               className="tbl-search"
-              placeholder="Search designs, job IDs..."
+              placeholder="Search jobs, clients, designs..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               aria-label="Search jobs"
@@ -121,13 +127,13 @@ export function JobTable({
         <>
           <TableView
             jobs={filtered}
-            onOpen={onOpen}
+            onOpen={handleOpen}
             renderRowActions={renderRowActions}
             className={cn(view === 'table' ? 'hidden md:block' : 'hidden')}
           />
           <GridView
             jobs={filtered}
-            onOpen={onOpen}
+            onOpen={handleOpen}
             renderRowActions={renderRowActions}
             className={cn(
               view === 'grid' && "grid",
@@ -137,12 +143,13 @@ export function JobTable({
           />
           <ListView
             jobs={filtered}
-            onOpen={onOpen}
+            onOpen={handleOpen}
             renderRowActions={renderRowActions}
             className={cn(view === 'list' ? 'block' : 'hidden')}
           />
         </>
       )}
+      <JobModal job={modalJob} onClose={() => setModalJob(null)} />
     </div>
   );
 }
@@ -368,7 +375,7 @@ function GridView({
   className?: string;
 }) {
   return (
-    <div className={cn("grid-view grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-4 p-1 md:p-3", className)}>
+    <div className={cn("grid-view grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 py-2", className)}>
       {jobs.map((j) => {
         const actionRequired = j.status === 'Pending Client Confirm' || j.status === 'Quote Approved';
         const agencyPrice = j.negotiation?.agencyOffer ?? j.adminPrice ?? null;
@@ -386,36 +393,28 @@ function GridView({
               }
             }}
           >
-            <div className="jc-img relative">
+            <div className="jc-img">
               <img
-                className="w-full h-[110px] md:h-[140px] object-cover block"
+                className="w-full h-[90px] md:h-[110px] object-cover block"
                 src={jobImage(j, 2, 400, 300)}
                 alt={j.design}
                 loading="lazy"
                 referrerPolicy="no-referrer"
               />
-              <span className={cn('jc-status-overlay badge absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[9px] md:top-2.5 md:right-2.5 md:px-2 md:py-1 md:text-[10px]', statusBadgeAccent(j.status))}>
+              <span className={cn('jc-status-overlay badge', statusBadgeAccent(j.status))}>
                 {statusDisplay(j.status)}
               </span>
             </div>
-            <div className="jc-body p-2.5 md:p-3.5 min-h-0 md:min-h-[140px] flex flex-col gap-1.5 md:gap-2">
-              <div className="jc-title text-[12.5px] md:text-[13.5px] font-bold leading-tight">{j.design}</div>
-              <div className="jc-desc text-[11px] md:text-[11.5px] text-text-muted leading-relaxed hidden md:block">{j.summary}</div>
-              <div className="jc-meta flex gap-1.5 md:gap-2 items-center flex-wrap">
-                <span className="jc-id text-[9px] px-1.5 py-0.5 md:text-[10.5px] md:px-2 md:py-0.5">{j.id}</span>
+            <div className="jc-body">
+              <div className="jc-title">{j.design}</div>
+              <div className="jc-desc hidden md:block">{j.summary}</div>
+              <div className="jc-meta">
+                <span className="truncate max-w-[90px]">{j.client}</span>
                 <Badge accent={orderBadgeAccent(j.order)}>{j.order}</Badge>
-              </div>
-              <div className="jc-meta flex gap-1.5 md:gap-2 items-center flex-wrap">
                 <PriorityChip priority={j.priority} />
-                {j.etaHours ? (
-                  <span className="jc-eta text-[9.5px] px-1.5 py-0.5 md:text-[11px] md:px-2 md:py-0.5 inline-flex items-center gap-1">
-                    <Clock aria-hidden className="w-3 h-3" />
-                    {j.etaHours}h
-                  </span>
-                ) : null}
               </div>
               {actionRequired ? (
-                <div className="jc-action p-1.5 text-[9.5px] rounded-md md:p-2 md:text-[11px] md:rounded-lg">
+                <div className="jc-action">
                   <CheckCircle2 aria-hidden className="w-3.5 h-3.5 mt-px shrink-0" />
                   <span>
                     Agency price ready{agencyPrice ? ` — $${agencyPrice}` : ''} ·{' '}

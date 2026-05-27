@@ -1,10 +1,7 @@
 import { Menu, Moon, Search, SendHorizontal, Sun } from 'lucide-react';
 import { useTheme } from '@providers/ThemeProvider';
-import { Theme, UserRole } from '@contracts';
-import { useSessionUser } from '@modules/auth/stores/auth-store';
-import { initials } from '@lib/utils';
+import { Theme } from '@contracts';
 import { NotificationBell } from './NotificationBell';
-import { NAV_CONFIG } from '@modules/shared-ui/nav-config';
 
 interface TopbarProps {
   title: string;
@@ -18,7 +15,6 @@ interface TopbarProps {
  */
 export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
   const { theme, toggleTheme } = useTheme();
-  const user = useSessionUser();
 
   return (
     <header
@@ -35,7 +31,7 @@ export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
       </button>
 
       <div className="min-w-0 flex-1">
-        <h1 className="text-[17px] font-bold text-text-main leading-tight truncate">{title}</h1>
+        <h1 className="text-[20px] font-semibold text-text-main leading-tight truncate tracking-wide">{title}</h1>
         {subtitle ? (
           <p className="text-[11.5px] text-text-muted mt-0.5 font-medium truncate">{subtitle}</p>
         ) : null}
@@ -80,34 +76,6 @@ export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
         )}
       </button>
 
-      {user ? (
-        <>
-          <div className="h-6 w-[1px] bg-slate-200 dark:bg-glass-border/40 mx-1 hidden md:block" />
-          <div
-            className="hidden md:flex items-center gap-3 pl-1"
-            aria-label="Account"
-          >
-            <div
-              aria-hidden
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, var(--color-crimson), var(--color-crimson-dim))',
-                border: '1.5px solid rgba(255,255,255,0.2)',
-              }}
-            >
-              {initials(user.name)}
-            </div>
-            <div className="leading-tight flex flex-col">
-              <div className="text-[13px] font-bold text-text-main truncate max-w-[140px]">
-                {user.name}
-              </div>
-              <div className="text-[10.5px] text-text-muted font-medium truncate max-w-[140px]">
-                {user.role === UserRole.CLIENT ? 'Client Portal' : NAV_CONFIG[user.role]?.label || 'Production Platform'}
-              </div>
-            </div>
-          </div>
-        </>
-      ) : null}
     </header>
   );
 }

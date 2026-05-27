@@ -54,6 +54,8 @@ export interface AdminDashMetrics {
   open: number;
   inProd: number;
   inQc: number;
+  readyByArtist: number;
+  readyByQc: number;
   rev: string;
   revSub: string;
   revSplit: {
@@ -101,6 +103,8 @@ export const DASH_METRICS: Record<DashRange, RangeMetrics> = {
       open: 7,
       inProd: 4,
       inQc: 1,
+      readyByArtist: 3,
+      readyByQc: 2,
       rev: '2.84L',
       revSub: '↑ 9%',
       revSplit: { art: 58, artVal: '1.65L', dig: 30, digVal: '85K', sew: 12, sewVal: '34K' },
@@ -132,6 +136,8 @@ export const DASH_METRICS: Record<DashRange, RangeMetrics> = {
       open: 42,
       inProd: 45,
       inQc: 18,
+      readyByArtist: 12,
+      readyByQc: 8,
       rev: '15.4L',
       revSub: '↑ 18%',
       revSplit: { art: 65, artVal: '10L', dig: 25, digVal: '3.8L', sew: 10, sewVal: '1.6L' },
@@ -163,6 +169,8 @@ export const DASH_METRICS: Record<DashRange, RangeMetrics> = {
       open: 65,
       inProd: 65,
       inQc: 24,
+      readyByArtist: 20,
+      readyByQc: 14,
       rev: '32.1L',
       revSub: '↑ 24%',
       revSplit: { art: 70, artVal: '22.5L', dig: 20, digVal: '6.4L', sew: 10, sewVal: '3.2L' },
@@ -194,6 +202,8 @@ export const DASH_METRICS: Record<DashRange, RangeMetrics> = {
       open: 120,
       inProd: 120,
       inQc: 45,
+      readyByArtist: 48,
+      readyByQc: 32,
       rev: '98.5L',
       revSub: 'Lifetime',
       revSplit: { art: 75, artVal: '74L', dig: 15, digVal: '14.5L', sew: 10, sewVal: '10L' },

@@ -48,7 +48,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
         <main
           id="main-content"
-          className="flex-1 overflow-y-auto px-4 md:px-6 py-6 pb-[calc(var(--mobile-nav-h)+1rem)] md:pb-6 anim-fade-in"
+          className="flex-1 overflow-y-auto px-4 md:px-6 py-[22px] pb-[calc(var(--mobile-nav-h)+1rem)] md:pb-[22px] anim-fade-in"
           tabIndex={-1}
         >
           {children}

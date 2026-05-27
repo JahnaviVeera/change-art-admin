@@ -1,20 +1,15 @@
 import {
-  Activity,
   ClipboardList,
   FileCheck,
   Gauge,
   Inbox,
   LayoutDashboard,
   PencilRuler,
-  PlusCircle,
   ScrollText,
   Send,
-  Settings,
   ShieldCheck,
-  ShoppingCart,
   Sparkles,
   Truck,
-  User,
   Users,
   Wrench,
   type LucideIcon,
@@ -55,36 +50,8 @@ export interface RoleNavConfig {
   mobile: NavItem[]; // 5 bottom-nav items max
 }
 
-export const NAV_CONFIG: Record<UserRole, RoleNavConfig> = {
-  [UserRole.CLIENT]: {
-    label: 'Client Portal',
-    sections: [
-      {
-        id: 'my-portal',
-        label: 'My Portal',
-        items: [
-          { id: 'dashboard', label: 'Dashboard', to: '/client', icon: LayoutDashboard, subtitle: 'Welcome back, {user.name}' },
-          { id: 'jobs', label: 'My Projects', to: '/client/jobs', icon: ClipboardList, badge: 3, badgeAccent: 'navy', subtitle: 'All your current and past orders' },
-          { id: 'quote', label: 'Request Quote', to: '/client/quote', icon: PlusCircle, subtitle: 'Submit a new quote request' },
-          { id: 'place_order', label: 'Place Order', to: '/client/place-order', icon: ShoppingCart, subtitle: 'Submit a new order request' },
-          { id: 'tracking', label: 'Delivered Projects', to: '/client/tracking', icon: Activity, subtitle: 'Your delivered projects — downloads & modifications' },
-        ],
-      },
-      {
-        id: 'account',
-        label: 'Account',
-        items: [{ id: 'profile', label: 'My Profile', to: '/client/profile', icon: User, subtitle: 'Your account information' }],
-      },
-    ],
-    mobile: [
-      { id: 'dashboard', label: 'Home', to: '/client', icon: LayoutDashboard },
-      { id: 'jobs', label: 'Projects', to: '/client/jobs', icon: ClipboardList },
-      { id: 'quote', label: 'Quote', to: '/client/quote', icon: PlusCircle },
-      { id: 'tracking', label: 'Delivered', to: '/client/tracking', icon: Activity },
-      { id: 'profile', label: 'Profile', to: '/client/profile', icon: User },
-    ],
-  },
-
+// CLIENT is intentionally absent — this app is admin/internal only.
+export const NAV_CONFIG = {
   [UserRole.CS]: {
     label: 'Client Servicing',
     sections: [
@@ -230,46 +197,33 @@ export const NAV_CONFIG: Record<UserRole, RoleNavConfig> = {
     label: 'Administration',
     sections: [
       {
-        id: 'main',
-        label: 'Overview',
+        id: 'administration',
+        label: 'Administration',
         items: [
           { id: 'dashboard', label: 'Admin Dashboard', to: '/admin', icon: LayoutDashboard },
-          { id: 'jobs', label: 'All Jobs', to: '/admin/jobs', icon: ClipboardList },
-          { id: 'new-jobs', label: 'New Jobs', to: '/admin/new-jobs', icon: ScrollText },
-          { id: 'new-quotes', label: 'New Quotes', to: '/admin/new-quotes', icon: Inbox },
-        ],
-      },
-      {
-        id: 'records',
-        label: 'Records',
-        items: [
-          { id: 'clients', label: 'Clients', to: '/admin/clients', icon: Users },
-          { id: 'users', label: 'User Management', to: '/admin/users', icon: ShieldCheck },
+          { id: 'new-jobs',    label: 'New Jobs',        to: '/admin/new-jobs',    icon: ScrollText },
+          { id: 'new-quotes',  label: 'New Quotes',      to: '/admin/new-quotes',  icon: Inbox },
+          { id: 'jobs',       label: 'All Jobs',         to: '/admin/jobs',        icon: ClipboardList },
+          { id: 'clients',    label: 'Clients',          to: '/admin/clients',     icon: Users },
+          { id: 'users',      label: 'User Management',  to: '/admin/users',       icon: ShieldCheck },
+          { id: 'reports',    label: 'Reports',          to: '/admin/reports',     icon: Gauge },
         ],
       },
       {
         id: 'create',
         label: 'Create',
         items: [
-          { id: 'create-quote', label: 'Create Quote', to: '/admin/create-quote', icon: Sparkles },
-          { id: 'place-order', label: 'Place Order', to: '/admin/place-order', icon: Send },
-        ],
-      },
-      {
-        id: 'insight',
-        label: 'Insight',
-        items: [
-          { id: 'reports', label: 'Reports', to: '/admin/reports', icon: Gauge },
-          { id: 'settings', label: 'Settings', to: '/admin/settings', icon: Settings },
+          { id: 'create-quote', label: 'New Quote',    to: '/admin/create-quote', icon: Sparkles },
+          { id: 'place-order',  label: 'Place Order',  to: '/admin/place-order',  icon: Send },
         ],
       },
     ],
     mobile: [
-      { id: 'dashboard', label: 'Home', to: '/admin', icon: LayoutDashboard },
-      { id: 'jobs', label: 'Jobs', to: '/admin/jobs', icon: ClipboardList },
-      { id: 'clients', label: 'Clients', to: '/admin/clients', icon: Users },
-      { id: 'users', label: 'Users', to: '/admin/users', icon: ShieldCheck },
-      { id: 'reports', label: 'Reports', to: '/admin/reports', icon: Wrench },
+      { id: 'dashboard', label: 'Home',    to: '/admin',          icon: LayoutDashboard },
+      { id: 'new-jobs',  label: 'Jobs',    to: '/admin/new-jobs', icon: ScrollText },
+      { id: 'clients',   label: 'Clients', to: '/admin/clients',  icon: Users },
+      { id: 'users',     label: 'Users',   to: '/admin/users',    icon: ShieldCheck },
+      { id: 'reports',   label: 'Reports', to: '/admin/reports',  icon: Gauge },
     ],
   },
-};
+} as unknown as Record<UserRole, RoleNavConfig>;

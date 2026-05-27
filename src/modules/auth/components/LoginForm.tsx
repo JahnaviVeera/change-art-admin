@@ -1,13 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { authService } from '@modules/auth/services';
 import { useAuthStore } from '@modules/auth/stores/auth-store';
 import { ApiClientError } from '@lib/api-client';
-import { ERROR_CODES, ERROR_MESSAGES } from '@contracts';
+import { ERROR_CODES, ERROR_MESSAGES, UserRole } from '@contracts';
 import { pathForRole } from '@/router';
 import { cn } from '@lib/utils';
 
@@ -37,6 +37,11 @@ export function LoginForm() {
     setServerError(null);
     try {
       const user = await authService.signIn(values);
+      if (user.role === UserRole.CLIENT) {
+        await authService.signOut();
+        setServerError('Access denied. This platform is for internal staff only.');
+        return;
+      }
       setUser(user);
       const from = (location.state as { from?: string } | null)?.from;
       navigate(from ?? pathForRole(user.role), { replace: true });
@@ -97,14 +102,7 @@ export function LoginForm() {
         ) : null}
       </label>
 
-      <div className="flex items-center justify-between mt-2 mb-5">
-        <Link
-          to="/forgot-password"
-          className="text-[11.5px] text-text-muted hover:text-crimson transition"
-        >
-          Forgot password?
-        </Link>
-      </div>
+      <div className="mt-2 mb-5" />
 
       {serverError ? (
         <div
@@ -124,30 +122,6 @@ export function LoginForm() {
         {isSubmitting ? 'Signing in…' : 'Sign in'}
       </button>
 
-      <div className="relative my-5">
-        <div className="absolute inset-0 flex items-center" aria-hidden>
-          <div className="w-full border-t border-glass-border" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="px-2 text-[10px] uppercase tracking-wider text-text-faint bg-transparent">
-            or
-          </span>
-        </div>
-      </div>
-
-      <a
-        href={authService.signInWithGoogleUrl()}
-        className="btn btn-outline w-full justify-center"
-      >
-        Continue with Google
-      </a>
-
-      <p className="text-[11.5px] text-text-muted mt-6 text-center">
-        New here?{' '}
-        <Link to="/register" className="text-crimson hover:underline">
-          Create an account
-        </Link>
-      </p>
     </form>
   );
 }

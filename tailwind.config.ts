@@ -18,6 +18,7 @@ const config: Config = {
         glass: {
           bg: 'var(--glass-bg)',
           border: 'var(--glass-border)',
+          'border-bright': 'var(--glass-border-bright)',
         },
         text: {
           DEFAULT: 'var(--text-main)',
