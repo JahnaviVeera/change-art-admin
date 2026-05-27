@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Download, Edit2, UserPlus, Send } from 'lucide-react';
+import { X, Download, Edit2, UserPlus, Send, AlertCircle } from 'lucide-react';
 import { cn } from '@lib/utils';
 import { type Job, jobImage } from '../mocks/jobs';
 
@@ -9,6 +9,12 @@ interface JobDetailModalProps {
   onConfirmJob?: (job: Job) => void;
   /** Open the edit form for this job (wired to the "Edit Job" footer button). */
   onEdit?: (job: Job) => void;
+  /**
+   * Render the quote popup (Review & Set Price section, blue step, no Dispatch).
+   * Driven by CONTEXT — only the Quotes page/section sets this. Job lists leave
+   * it false so a quote-stage job still opens the regular job popup.
+   */
+  quoteView?: boolean;
 }
 
 function buildFlowSteps(hasSewout: boolean): { role: string; sub: string }[] {
@@ -67,11 +73,19 @@ function priorityClass(priority: string): string {
   return map[priority] ?? 'normal';
 }
 
-export function JobDetailModal({ job, onClose, onEdit }: JobDetailModalProps) {
+export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobDetailModalProps) {
   const [isIn, setIsIn] = useState(false);
+  const [agencyPrice, setAgencyPrice] = useState('');
+  const [confirmedEta, setConfirmedEta] = useState('');
+  const [noteToClient, setNoteToClient] = useState('');
+  const [priceError, setPriceError] = useState(false);
 
   useEffect(() => {
     if (job) {
+      setAgencyPrice('');
+      setConfirmedEta(job.etaHours ? String(job.etaHours) : '');
+      setNoteToClient('');
+      setPriceError(false);
       const raf = requestAnimationFrame(() => setIsIn(true));
       return () => cancelAnimationFrame(raf);
     }
@@ -118,6 +132,27 @@ export function JobDetailModal({ job, onClose, onEdit }: JobDetailModalProps) {
     ? Math.round((job.aiScore.colour + job.aiScore.align + job.aiScore.res + job.aiScore.brief) / 4)
     : null;
   const aiPass = aiOverall !== null ? aiOverall >= 80 : null;
+
+  // Quote popup is decided by CONTEXT (the Quotes page passes quoteView),
+  // NOT by job.stage — otherwise quote-stage jobs in the Jobs lists would
+  // wrongly open the quote popup.
+  const isQuote = quoteView;
+
+  // Workflow "current" node is blue ONLY on the quote popup; every other
+  // popup keeps the original crimson so non-quote popups are unchanged.
+  const curBorder = isQuote ? '#2563EB' : '#B22234';
+  const curBg     = isQuote ? '#EBF0FA' : '#fff';
+  const curGlow   = isQuote ? 'rgba(37,99,235,0.12)' : 'rgba(178,34,52,0.1)';
+
+  const handleSendPrice = () => {
+    const n = parseFloat(agencyPrice);
+    if (!agencyPrice || !Number.isFinite(n) || n <= 0) {
+      setPriceError(true);
+      return;
+    }
+    setPriceError(false);
+    handleClose();
+  };
 
   return (
     <div
@@ -238,7 +273,7 @@ export function JobDetailModal({ job, onClose, onEdit }: JobDetailModalProps) {
                         state === 'done'
                           ? { background: '#B22234', border: '2px solid #B22234' }
                           : state === 'current'
-                            ? { background: '#fff', border: '2.5px solid #B22234', boxShadow: '0 0 0 4px rgba(178,34,52,0.1)' }
+                            ? { background: curBg, border: `2.5px solid ${curBorder}`, boxShadow: `0 0 0 4px ${curGlow}` }
                             : { background: '#fff', border: '2px solid #E2E8F0' }
                       }
                     >
@@ -247,7 +282,7 @@ export function JobDetailModal({ job, onClose, onEdit }: JobDetailModalProps) {
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       ) : state === 'current' ? (
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B22234" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={curBorder} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
                         </svg>
                       ) : (
@@ -324,6 +359,128 @@ export function JobDetailModal({ job, onClose, onEdit }: JobDetailModalProps) {
               ) : null}
             </div>
           </div>
+
+          {/* REVIEW & SET PRICE — quote-stage only */}
+          {isQuote ? (
+            <div className="mb-5">
+              <SectionLabel>REVIEW &amp; SET PRICE</SectionLabel>
+              <div
+                className="rounded-xl p-4"
+                style={{ background: 'rgba(245,158,11,0.06)', border: '1.5px solid rgba(245,158,11,0.25)' }}
+              >
+                {/* Budget + Agency price */}
+                <div className="flex flex-wrap gap-4 items-start mb-4">
+                  <div className="flex-1 min-w-[180px]">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.08em] mb-1" style={{ color: '#94A3B8' }}>
+                      Client's Suggested Budget
+                    </div>
+                    <div
+                      className="text-[22px] font-extrabold leading-none"
+                      style={{ color: clientBudget != null ? '#059669' : '#94A3B8' }}
+                    >
+                      {clientBudget != null ? `₹${Number(clientBudget).toLocaleString()}` : 'Not provided'}
+                    </div>
+                    <div className="text-[11px] mt-1" style={{ color: '#94A3B8' }}>
+                      This is a reference only — you set the final price.
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: '#64748B' }}>
+                      Agency Price <span style={{ color: '#B22234' }}>*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="e.g. 250"
+                      value={agencyPrice}
+                      onChange={(e) => { setAgencyPrice(e.target.value); setPriceError(false); }}
+                      className="w-full rounded-lg px-3 py-2.5 text-[16px] font-bold outline-none transition border bg-white text-[#0D1B2A] focus:ring-2 focus:ring-[#B22234]/10"
+                      style={{ borderColor: priceError ? '#DC2626' : 'rgba(245,158,11,0.45)' }}
+                    />
+                    <div className="text-[10.5px]" style={{ color: '#94A3B8' }}>
+                      This price will be shown to the client for confirmation.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirmed ETA */}
+                <div className="mb-3">
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.08em] mb-1.5" style={{ color: '#64748B' }}>
+                    Confirmed ETA (hours) <span style={{ color: '#B22234' }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="e.g. 8"
+                    value={confirmedEta}
+                    onChange={(e) => setConfirmedEta(e.target.value)}
+                    className="rounded-lg px-3 py-2.5 text-[12.5px] outline-none transition border bg-white text-[#0D1B2A] focus:border-[#B22234] focus:ring-2 focus:ring-[#B22234]/10"
+                    style={{ maxWidth: 160, borderColor: '#E2E8F0' }}
+                  />
+                </div>
+
+                {/* Note to client */}
+                <div className="mb-3.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.08em] mb-1.5" style={{ color: '#64748B' }}>
+                    Note to Client{' '}
+                    <span className="font-normal lowercase text-[10px]" style={{ color: '#94A3B8' }}>(optional)</span>
+                  </label>
+                  <textarea
+                    placeholder="e.g. Price includes 3 revisions. Delivery in DST + PDF formats. Rush surcharge applied."
+                    value={noteToClient}
+                    onChange={(e) => setNoteToClient(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2.5 text-[12.5px] outline-none transition border bg-white text-[#0D1B2A] resize-y focus:border-[#B22234] focus:ring-2 focus:ring-[#B22234]/10"
+                    style={{ minHeight: 60, borderColor: '#E2E8F0' }}
+                  />
+                </div>
+
+                {/* Info callout */}
+                <div
+                  className="rounded-lg px-3 py-2.5 flex items-start gap-2 mb-3.5"
+                  style={{ background: '#FFFBEB', border: '1px solid rgba(245,158,11,0.25)' }}
+                >
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: '#D97706' }} aria-hidden />
+                  <span className="text-[11.5px] leading-relaxed" style={{ color: '#92733A' }}>
+                    Once you click <strong>Send Price to Client</strong>, the job status changes to{' '}
+                    <strong style={{ color: '#D97706' }}>Quote Approved</strong> and the client receives an in-app
+                    notification to confirm and start production.
+                  </span>
+                </div>
+
+                {/* Validation error */}
+                {priceError ? (
+                  <div
+                    className="text-[12px] mb-2.5 px-2.5 py-1.5 rounded-md"
+                    style={{ color: '#DC2626', background: 'rgba(220,38,38,0.08)' }}
+                  >
+                    Please enter a valid agency price before sending.
+                  </div>
+                ) : null}
+
+                {/* Actions */}
+                <div className="flex gap-2.5 justify-end">
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{ fontSize: 12, padding: '7px 13px', gap: 6, color: '#DC2626', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)' }}
+                    onClick={handleClose}
+                  >
+                    <X className="w-3.5 h-3.5" aria-hidden />
+                    Reject Quote
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{ fontSize: 12, padding: '7px 13px', gap: 6, color: '#059669', background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.3)' }}
+                    onClick={handleSendPrice}
+                  >
+                    <Send className="w-3.5 h-3.5" aria-hidden />
+                    Send Price to Client
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {/* NOTES / BRIEF */}
           {job.notes ? (
@@ -441,14 +598,16 @@ export function JobDetailModal({ job, onClose, onEdit }: JobDetailModalProps) {
             <UserPlus className="w-3.5 h-3.5" aria-hidden />
             Assign Job
           </button>
-          <button
-            type="button"
-            className="btn btn-crimson"
-            style={{ fontSize: 12, padding: '7px 13px', gap: 6 }}
-          >
-            <Send className="w-3.5 h-3.5" aria-hidden />
-            Dispatch to Client
-          </button>
+          {!isQuote ? (
+            <button
+              type="button"
+              className="btn btn-crimson"
+              style={{ fontSize: 12, padding: '7px 13px', gap: 6 }}
+            >
+              <Send className="w-3.5 h-3.5" aria-hidden />
+              Dispatch to Client
+            </button>
+          ) : null}
         </div>
 
       </div>

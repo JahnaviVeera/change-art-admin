@@ -1,38 +1,35 @@
-import { useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Pencil, Plus, Search } from 'lucide-react';
 import { GreetingHero, Pagination, Panel, StatGrid } from '@modules/shared-ui';
 import { UserRole, UserSubType } from '@contracts';
 import type { IUser } from '@contracts';
 import { useAdminUsers } from '../../modules/admin-panel/hooks/use-admin-jobs';
+import { UserFormModal, type UserModalMode } from '../../modules/admin-panel/components/UserFormModal';
 
 const PER_PAGE = 20;
+// Internal staff lists are small; fetch the whole set once so the stat cards
+// reflect true totals (not just the visible page) and paginate client-side.
+const FETCH_LIMIT = 100;
 
-function roleBadgeClass(role: UserRole): string {
-  const map: Partial<Record<UserRole, string>> = {
-    [UserRole.ADMIN]:     'crimson',
-    [UserRole.CS]:        'blue',
-    [UserRole.TEAM_LEAD]: 'teal',
-    [UserRole.DESIGNER]:  'amber',
-    [UserRole.DIGITATOR]: 'purple',
-    [UserRole.SEWOUT]:    'green',
-    [UserRole.QC]:        'navy',
-  };
-  return map[role] ?? 'gray';
+const ROLE_FILTERS: { value: string; label: string }[] = [
+  { value: 'all', label: 'All roles' },
+  { value: UserRole.CS, label: 'Client Servicing' },
+  { value: UserRole.TEAM_LEAD, label: 'Team Lead' },
+  { value: UserRole.DESIGNER, label: 'Designer' },
+  { value: UserRole.DIGITATOR, label: 'Digitator' },
+  { value: UserRole.SEWOUT, label: 'Sewout' },
+  { value: UserRole.QC, label: 'QC Reviewer' },
+  { value: UserRole.ADMIN, label: 'Admin' },
+];
+
+function roleLabel(role: UserRole): string {
+  return ROLE_FILTERS.find((r) => r.value === role)?.label ?? role;
 }
 
-function roleLabel(role: UserRole, subType: UserSubType | null): string {
-  const labels: Partial<Record<UserRole, string>> = {
-    [UserRole.ADMIN]:     'Admin',
-    [UserRole.CS]:        'Client Servicing',
-    [UserRole.TEAM_LEAD]: 'Team Lead',
-    [UserRole.DESIGNER]:  'Designer',
-    [UserRole.DIGITATOR]: 'Digitator',
-    [UserRole.SEWOUT]:    'Sewout',
-    [UserRole.QC]:        'QC Reviewer',
-  };
-  const base = labels[role] ?? role;
-  if (subType) return `${base} · ${subType.charAt(0) + subType.slice(1).toLowerCase()}`;
-  return base;
+function subTypeBadge(sub: UserSubType | null) {
+  if (!sub) return <span className="text-text-faint">—</span>;
+  const label = sub.charAt(0) + sub.slice(1).toLowerCase();
+  return <span className={`badge ${sub === UserSubType.SENIOR ? 'crimson' : 'blue'}`}>{label}</span>;
 }
 
 function nameInitials(name: string): string {
@@ -46,11 +43,46 @@ function nameInitials(name: string): string {
 
 export function AdminUsersPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useAdminUsers({ page, per_page: PER_PAGE });
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [modal, setModal] = useState<{ mode: UserModalMode; user: IUser | null } | null>(null);
 
-  const users    = data?.items ?? [];
-  const total    = data?.meta.total ?? 0;
-  const totalPages = data?.meta.total_pages ?? 1;
+  // Clients are excluded server-side by the hook; this only returns staff.
+  const { data, isLoading, isError } = useAdminUsers({ per_page: FETCH_LIMIT });
+
+  const allUsers = useMemo<IUser[]>(() => data?.items ?? [], [data]);
+
+  // Stat cards reflect the full staff set (not the filtered/paged view).
+  const total        = allUsers.length;
+  const activeCount   = allUsers.filter((u) => u.is_active).length;
+  const inactiveCount = total - activeCount;
+  const adminCount    = allUsers.filter((u) => u.role === UserRole.ADMIN).length;
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return allUsers.filter((u) => {
+      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if (statusFilter === 'active' && !u.is_active) return false;
+      if (statusFilter === 'inactive' && u.is_active) return false;
+      if (term && !(u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term)))
+        return false;
+      return true;
+    });
+  }, [allUsers, search, roleFilter, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const pageUsers = useMemo(
+    () => filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE),
+    [filtered, page],
+  );
+
+  function resetToFirstPage<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setter(v);
+      setPage(1);
+    };
+  }
 
   return (
     <div className="page">
@@ -61,14 +93,64 @@ export function AdminUsersPage() {
 
       <StatGrid
         stats={[
-          { accent: 'blue',    label: 'Total Users',     value: isLoading ? '…' : total },
-          { accent: 'green',   label: 'Active',          value: isLoading ? '…' : users.filter((u) => u.is_active).length },
-          { accent: 'amber',   label: 'Pending Invites', value: 0 },
-          { accent: 'crimson', label: 'Admins',          value: isLoading ? '…' : users.filter((u) => u.role === UserRole.ADMIN).length },
+          { accent: 'blue',    label: 'Total Users', value: isLoading ? '…' : total },
+          { accent: 'green',   label: 'Active',      value: isLoading ? '…' : activeCount },
+          { accent: 'amber',   label: 'Inactive',    value: isLoading ? '…' : inactiveCount },
+          { accent: 'crimson', label: 'Admins',      value: isLoading ? '…' : adminCount },
         ]}
       />
 
-      <Panel title={`All Users${total ? ` (${total})` : ''}`}>
+      {/* Toolbar: search + filters + create */}
+      <div className="flex flex-wrap items-center gap-2.5 mb-4">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search
+            className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-faint pointer-events-none"
+            aria-hidden
+          />
+          <input
+            className="fi"
+            style={{ paddingLeft: 36 }}
+            placeholder="Search by name or email…"
+            value={search}
+            onChange={(e) => resetToFirstPage(setSearch)(e.target.value)}
+            aria-label="Search users"
+          />
+        </div>
+        <select
+          className="fi"
+          style={{ width: 'auto', minWidth: 150 }}
+          value={roleFilter}
+          onChange={(e) => resetToFirstPage(setRoleFilter)(e.target.value)}
+          aria-label="Filter by role"
+        >
+          {ROLE_FILTERS.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
+          ))}
+        </select>
+        <select
+          className="fi"
+          style={{ width: 'auto', minWidth: 130 }}
+          value={statusFilter}
+          onChange={(e) => resetToFirstPage(setStatusFilter)(e.target.value)}
+          aria-label="Filter by status"
+        >
+          <option value="all">All status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <button
+          type="button"
+          className="btn btn-crimson"
+          onClick={() => setModal({ mode: 'create', user: null })}
+        >
+          <Plus className="w-3.5 h-3.5" aria-hidden />
+          New User
+        </button>
+      </div>
+
+      <Panel title={`All Users${filtered.length ? ` (${filtered.length})` : ''}`}>
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-text-faint text-sm">
             Loading users…
@@ -77,9 +159,9 @@ export function AdminUsersPage() {
           <div className="flex items-center justify-center py-12 text-[var(--crimson)] text-sm">
             Failed to load users. Please refresh and try again.
           </div>
-        ) : users.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-text-faint text-sm">
-            No users found.
+            No users match your filters.
           </div>
         ) : (
           <>
@@ -87,16 +169,21 @@ export function AdminUsersPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Email</th>
+                    <th>User</th>
                     <th>Role</th>
+                    <th>Sub-Type</th>
+                    <th>Email</th>
                     <th>Status</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u: IUser) => (
-                    <tr key={u.id}>
+                  {pageUsers.map((u: IUser) => (
+                    <tr
+                      key={u.id}
+                      className="cursor-pointer"
+                      onClick={() => setModal({ mode: 'view', user: u })}
+                    >
                       <td>
                         <div className="flex items-center gap-2.5">
                           <span
@@ -112,12 +199,9 @@ export function AdminUsersPage() {
                           <span className="font-semibold">{u.name}</span>
                         </div>
                       </td>
+                      <td>{roleLabel(u.role)}</td>
+                      <td>{subTypeBadge((u.sub_type as UserSubType | null) ?? null)}</td>
                       <td className="text-text-muted">{u.email}</td>
-                      <td>
-                        <span className={`badge ${roleBadgeClass(u.role)}`}>
-                          {roleLabel(u.role, u.sub_type)}
-                        </span>
-                      </td>
                       <td>
                         <span className="flex items-center gap-1.5 text-[11.5px]">
                           <span
@@ -127,11 +211,12 @@ export function AdminUsersPage() {
                           {u.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td>
+                      <td onClick={(e) => e.stopPropagation()}>
                         <button
                           type="button"
                           className="btn btn-outline"
                           aria-label={`Edit ${u.name}`}
+                          onClick={() => setModal({ mode: 'edit', user: u })}
                         >
                           <Pencil aria-hidden className="w-3.5 h-3.5" />
                           Edit
@@ -146,13 +231,17 @@ export function AdminUsersPage() {
             <Pagination
               page={page}
               totalPages={totalPages}
-              total={total}
+              total={filtered.length}
               perPage={PER_PAGE}
               onPageChange={setPage}
             />
           </>
         )}
       </Panel>
+
+      {modal ? (
+        <UserFormModal mode={modal.mode} user={modal.user} onClose={() => setModal(null)} />
+      ) : null}
     </div>
   );
 }

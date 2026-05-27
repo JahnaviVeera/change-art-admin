@@ -4,7 +4,10 @@ import { GreetingHero, Pagination, Panel, StatGrid } from '@modules/shared-ui';
 import { PaymentMode } from '@contracts';
 import type { IClient } from '@contracts';
 import { useAdminClients } from '../../modules/admin-panel/hooks/use-admin-clients';
-import { ClientDetailModal } from '../../modules/admin-panel/components/ClientDetailModal';
+import {
+  ClientDetailModal,
+  type ClientModalMode,
+} from '../../modules/admin-panel/components/ClientDetailModal';
 
 const PER_PAGE = 20;
 
@@ -29,7 +32,7 @@ function currentMonthCount(items: { created_at: string }[]): number {
 
 export function AdminClientsPage() {
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<IClient | null>(null);
+  const [selected, setSelected] = useState<{ client: IClient; mode: ClientModalMode } | null>(null);
 
   const { data, isLoading, isError } = useAdminClients({ page, per_page: PER_PAGE });
 
@@ -91,7 +94,7 @@ export function AdminClientsPage() {
                     <tr
                       key={c.id}
                       className="cursor-pointer"
-                      onClick={() => setSelected(c)}
+                      onClick={() => setSelected({ client: c, mode: 'view' })}
                     >
                       <td><span className="ref-code">{c.client_id}</span></td>
                       <td className="font-semibold">{c.contact_name}</td>
@@ -105,6 +108,7 @@ export function AdminClientsPage() {
                           type="button"
                           className="btn btn-outline"
                           aria-label={`Edit ${c.contact_name}`}
+                          onClick={() => setSelected({ client: c, mode: 'edit' })}
                         >
                           <Pencil aria-hidden className="w-3.5 h-3.5" />
                           Edit
@@ -127,7 +131,11 @@ export function AdminClientsPage() {
         )}
       </Panel>
 
-      <ClientDetailModal client={selected} onClose={() => setSelected(null)} />
+      <ClientDetailModal
+        client={selected?.client ?? null}
+        mode={selected?.mode}
+        onClose={() => setSelected(null)}
+      />
     </div>
   );
 }

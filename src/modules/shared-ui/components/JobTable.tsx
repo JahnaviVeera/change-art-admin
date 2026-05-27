@@ -38,6 +38,8 @@ interface JobTableProps {
   emptyLabel?: string;
   /** Extra elements rendered to the right of the view toggle (e.g. a Filter button). */
   controlsExtra?: ReactNode;
+  /** Open the quote popup (Review & Set Price) from this table's View button. */
+  quoteView?: boolean;
 }
 
 /**
@@ -54,6 +56,7 @@ export function JobTable({
   renderActions,
   emptyLabel = 'No jobs found',
   controlsExtra,
+  quoteView = false,
 }: JobTableProps) {
   const [view, setView] = useState<JobView>(defaultView);
   const [query, setQuery] = useState('');
@@ -176,6 +179,7 @@ export function JobTable({
         job={viewJob}
         onClose={() => setViewJob(null)}
         onEdit={(j) => { setViewJob(null); setEditJob(j); }}
+        quoteView={quoteView}
       />
       <EditJobModal
         job={editJob}

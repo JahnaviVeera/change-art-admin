@@ -64,7 +64,7 @@ export function AdminNewQuotesPage() {
           {pending.length > 0 && (
             <>
               <SectionHeader title="Pending Your Review" />
-              <JobTable jobs={pendingPage_items} showActions defaultView="grid" />
+              <JobTable jobs={pendingPage_items} showActions defaultView="grid" quoteView />
               <Pagination
                 page={pendingPage}
                 totalPages={pendingPages}
@@ -78,7 +78,7 @@ export function AdminNewQuotesPage() {
           {awaitingClient.length > 0 && (
             <div className="mt-6">
               <SectionHeader title="Price Sent — Awaiting Client" />
-              <JobTable jobs={awaitingPage_items} showActions defaultView="grid" />
+              <JobTable jobs={awaitingPage_items} showActions defaultView="grid" quoteView />
               <Pagination
                 page={awaitingPage}
                 totalPages={awaitingPages}

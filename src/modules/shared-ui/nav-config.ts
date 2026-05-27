@@ -205,7 +205,7 @@ export const NAV_CONFIG = {
           { id: 'jobs',       label: 'All Jobs',         to: '/admin/jobs',        icon: ClipboardList },
           { id: 'clients',    label: 'Clients',          to: '/admin/clients',     icon: Users },
           { id: 'users',      label: 'User Management',  to: '/admin/users',       icon: ShieldCheck },
-          { id: 'reports',    label: 'Reports',          to: '/admin/reports',     icon: Gauge },
+          // { id: 'reports',    label: 'Reports',          to: '/admin/reports',     icon: Gauge },
         ],
       },
       {
@@ -222,7 +222,7 @@ export const NAV_CONFIG = {
       { id: 'new-jobs',  label: 'Jobs',    to: '/admin/new-jobs', icon: ScrollText },
       { id: 'clients',   label: 'Clients', to: '/admin/clients',  icon: Users },
       { id: 'users',     label: 'Users',   to: '/admin/users',    icon: ShieldCheck },
-      { id: 'reports',   label: 'Reports', to: '/admin/reports',  icon: Gauge },
+      // { id: 'reports',   label: 'Reports', to: '/admin/reports',  icon: Gauge },
     ],
   },
 } as unknown as Record<UserRole, RoleNavConfig>;

@@ -99,7 +99,7 @@ export function AdminDashboardPage() {
             {isLoading ? (
               <div className="flex items-center justify-center py-8 text-text-faint text-sm">Loading…</div>
             ) : (
-              <JobTable jobs={newQuotes} defaultView="grid" showActions />
+              <JobTable jobs={newQuotes} defaultView="grid" showActions quoteView />
             )}
           </div>
         </div>

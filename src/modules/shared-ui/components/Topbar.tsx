@@ -1,6 +1,4 @@
-import { Menu, Moon, Search, SendHorizontal, Sun } from 'lucide-react';
-import { useTheme } from '@providers/ThemeProvider';
-import { Theme } from '@contracts';
+import { Menu, Search, SendHorizontal } from 'lucide-react';
 import { NotificationBell } from './NotificationBell';
 
 interface TopbarProps {
@@ -14,8 +12,6 @@ interface TopbarProps {
  * Upgraded in v1 to a gorgeous, premium rounded glass interface as requested, using NAV_CONFIG dynamic metadata.
  */
 export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
-  const { theme, toggleTheme } = useTheme();
-
   return (
     <header
       className="sticky top-0 z-30 h-[var(--topbar-h)] px-4 md:px-6 flex items-center gap-3 border-b border-glass-border glass"
@@ -62,19 +58,6 @@ export function Topbar({ title, subtitle, onOpenMobileNav }: TopbarProps) {
       <div className="h-6 w-[1px] bg-slate-200 dark:bg-glass-border/40 mx-1 hidden md:block" />
 
       <NotificationBell />
-
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="w-9 h-9 rounded-full flex items-center justify-center border border-slate-200/50 dark:border-glass-border bg-[#f1f5f9] dark:bg-navy-light/40 hover:bg-slate-200 dark:hover:bg-navy-ink text-text-main transition"
-        aria-label={theme === Theme.DARK ? 'Switch to light theme' : 'Switch to dark theme'}
-      >
-        {theme === Theme.DARK ? (
-          <Sun aria-hidden className="w-4 h-4 text-text-main" />
-        ) : (
-          <Moon aria-hidden className="w-4 h-4 text-text-main" />
-        )}
-      </button>
 
     </header>
   );

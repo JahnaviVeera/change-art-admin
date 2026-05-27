@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { UserRole } from '@contracts';
 import { queryKeys } from '@lib/query-keys';
 import type { Job } from '@modules/shared-ui';
 import { adminService, type JobCardFilters, type UserFilters } from '../services/admin.service';
@@ -7,10 +8,12 @@ import { adaptJobCard, type ClientInfo } from '../adapters/job-view';
 import { useAdminClients } from './use-admin-clients';
 
 // Exported so pages that explicitly need user name resolution can opt in.
+// CLIENT accounts are excluded by default — User Management only covers
+// internal staff; client records live in the Clients tab.
 export function useAdminUsers(filters: UserFilters = {}) {
   return useQuery({
-    queryKey: queryKeys.users.list(filters as Record<string, unknown>),
-    queryFn: () => adminService.getUsers({ is_active: true, ...filters }),
+    queryKey: queryKeys.users.list({ exclude_role: UserRole.CLIENT, ...filters } as Record<string, unknown>),
+    queryFn: () => adminService.getUsers({ exclude_role: UserRole.CLIENT, ...filters }),
     staleTime: 5 * 60 * 1000,
   });
 }

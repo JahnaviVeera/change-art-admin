@@ -894,7 +894,7 @@ html[data-theme='light'] .mb-track {
   }
 
   .data-table thead th {
-    padding: 16px 12px;
+    padding: 10px 12px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
@@ -921,7 +921,7 @@ html[data-theme='light'] .mb-track {
   }
 
   .data-table tbody td {
-    padding: 18px 12px;
+    padding: 10px 12px;
     font-size: 13px;
     color: var(--text-main);
     vertical-align: middle;

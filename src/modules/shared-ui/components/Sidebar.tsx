@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useSessionUser, useAuthStore } from '@modules/auth/stores/auth-store';
 import { NAV_CONFIG, type NavItem } from '@modules/shared-ui/nav-config';
@@ -6,6 +7,19 @@ import { authService } from '@modules/auth/services';
 import { cn, initials } from '@lib/utils';
 import { UserRole } from '@contracts';
 import { useAdminNavBadges } from '@modules/admin-panel/hooks/use-admin-badges';
+
+// Per-section "seen" baselines, persisted so a cleared badge stays cleared
+// across reloads and only re-lights when the live count grows past it.
+const NAV_SEEN_KEY = 'admin-nav-seen';
+
+function readNavSeen(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(NAV_SEEN_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
+  } catch {
+    return {};
+  }
+}
 
 const PROFILE_PATH: Record<UserRole, string> = {
   [UserRole.CLIENT]:    '/login',
@@ -26,9 +40,40 @@ interface SidebarProps {
 export function Sidebar({ collapsedOnMobile, onNavigateMobile }: SidebarProps) {
   const user = useSessionUser();
   const reset = useAuthStore((s) => s.reset);
+  const location = useLocation();
   // Must be called unconditionally (Rules of Hooks). enabled=false when no user
   // or non-admin role, so no fetch fires in those cases.
   const adminBadges = useAdminNavBadges(user?.role === UserRole.ADMIN);
+
+  const [seen, setSeen] = useState<Record<string, number>>(readNavSeen);
+
+  const markSeen = useCallback((id: string, count: number) => {
+    setSeen((prev) => {
+      if (prev[id] === count) return prev;
+      const next = { ...prev, [id]: count };
+      try { localStorage.setItem(NAV_SEEN_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }, []);
+
+  // Reconcile baselines: clear a badge while you're viewing its section, and
+  // lower the baseline when items get processed so genuinely-new arrivals
+  // re-light it.
+  useEffect(() => {
+    if (user?.role !== UserRole.ADMIN) return;
+    const items = NAV_CONFIG[UserRole.ADMIN].sections.flatMap((s) => s.items);
+    for (const [id, live] of Object.entries(adminBadges)) {
+      const item = items.find((it) => it.id === id);
+      if (!item) continue;
+      const onPage = location.pathname.startsWith(item.to);
+      const base = seen[id] ?? 0;
+      if (onPage) {
+        if (base !== live) markSeen(id, live);
+      } else if (live < base) {
+        markSeen(id, live);
+      }
+    }
+  }, [adminBadges, location.pathname, seen, markSeen, user]);
 
   if (!user) return null;
 
@@ -72,14 +117,19 @@ export function Sidebar({ collapsedOnMobile, onNavigateMobile }: SidebarProps) {
               {section.label}
             </div>
             <ul>
-              {section.items.map((item) => (
-                <SidebarItem
-                  key={item.id}
-                  item={item}
-                  onClick={onNavigateMobile}
-                  dynamicBadge={adminBadges[item.id]}
-                />
-              ))}
+              {section.items.map((item) => {
+                const live = adminBadges[item.id];
+                const dynamicBadge =
+                  live === undefined ? undefined : Math.max(0, live - (seen[item.id] ?? 0));
+                return (
+                  <SidebarItem
+                    key={item.id}
+                    item={item}
+                    onClick={onNavigateMobile}
+                    dynamicBadge={dynamicBadge}
+                  />
+                );
+              })}
             </ul>
           </div>
         ))}

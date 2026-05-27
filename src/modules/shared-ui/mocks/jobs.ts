@@ -900,16 +900,24 @@ export const JOBS: Job[] = [
 ];
 
 /**
- * Picsum URL for a job, seeded so the same job always returns the same image.
- * Used for grid/list/table thumbnails until the real upload pipeline lands.
+ * Neutral "no preview" placeholder shown when a job carries no real image.
+ * The backend job-card has no preview/thumbnail field yet, so rather than
+ * inventing random stock photos we render a plain image-icon placeholder.
  */
-export function jobImage(job: Job, index: number, width: number, height: number): string {
-  const seed = encodeURIComponent(`${job.id}-${index}-${job.client}-${job.design}`);
-  return `https://picsum.photos/seed/${seed}/${width}/${height}`;
+const NO_IMAGE_PLACEHOLDER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23F1F5F9'/%3E%3Cg fill='none' stroke='%23CBD5E1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='158' y='112' width='84' height='68' rx='7'/%3E%3Ccircle cx='180' cy='136' r='8'/%3E%3Cpath d='M162 176l24-22 16 14 20-18 18 16'/%3E%3C/g%3E%3C/svg%3E";
+
+/**
+ * Returns the job's real image at `index` when the backend provides one,
+ * otherwise a neutral placeholder. (`width`/`height` are kept for call-site
+ * compatibility; the placeholder scales to the element's CSS box.)
+ */
+export function jobImage(job: Job, index: number, _width?: number, _height?: number): string {
+  return job.images?.[index] ?? NO_IMAGE_PLACEHOLDER;
 }
 
 export function jobImages(job: Job, count = 3): string[] {
-  return Array.from({ length: count }, (_, i) => jobImage(job, i, 900, 700));
+  return Array.from({ length: count }, (_, i) => jobImage(job, i));
 }
 
 // ─── Stage-scoped selectors ───────────────────────────────────────
