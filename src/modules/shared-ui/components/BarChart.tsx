@@ -35,7 +35,9 @@ export function BarChart({ items, className, height = 110 }: BarChartProps) {
             className="flex-1 rounded-t relative transition-all"
             style={{
               height: `${b.height}%`,
-              background: b.color ?? (b.highlight ? 'var(--color-crimson)' : 'rgba(255,255,255,0.08)'),
+              // Default uses a theme-aware glass-border tone so the bar stays
+              // visible on both dark (white-tinted) and light (slate-tinted) bg.
+              background: b.color ?? (b.highlight ? 'var(--color-crimson)' : 'var(--glass-border-bright)'),
               boxShadow: b.highlight ? '0 -2px 10px rgba(196,30,58,0.18)' : undefined,
             }}
             title={`${b.label}: ${b.value}`}

@@ -166,10 +166,10 @@ export function AdminDashboardPage() {
           <Panel title="Weekly Trend">
             <BarChart
               items={[
-                { label: 'Mon', value: 8,  height: 40 },
-                { label: 'Tue', value: 11, height: 55 },
-                { label: 'Wed', value: 7,  height: 35 },
-                { label: 'Thu', value: 14, height: 70, color: 'var(--color-blue)' },
+                { label: 'Mon', value: 8,  height: 40,  color: 'var(--color-teal)' },
+                { label: 'Tue', value: 11, height: 55,  color: 'var(--color-amber)' },
+                { label: 'Wed', value: 7,  height: 35,  color: 'var(--color-purple, #a855f7)' },
+                { label: 'Thu', value: 14, height: 70,  color: 'var(--color-blue)' },
                 { label: 'Fri', value: 20, height: 100, highlight: true },
               ]}
             />
