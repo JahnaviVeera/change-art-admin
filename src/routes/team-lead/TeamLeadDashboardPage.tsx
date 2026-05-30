@@ -86,7 +86,7 @@ function KanbanColumn({
         jobs.map((j) => (
           <div key={j.id} className="k-item">
             <img
-              src={jobImage(j, 4, 120, 120)}
+              src={jobImage(j, 0, 120, 120)}
               alt=""
               className="k-item-thumb"
               loading="lazy"

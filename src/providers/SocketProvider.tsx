@@ -10,9 +10,10 @@ import {
   type QuoteUpdatedEvent,
   type ReviewSubmittedEvent,
   type ModificationRequestedEvent,
+  type AttendanceClockEvent,
 } from '@contracts';
 import { useIsAuthenticated, useSessionUser } from '@modules/auth/stores/auth-store';
-import { connectSocket, disconnectSocket } from '@lib/socket-client';
+import { connectSocket, disconnectSocket, ensureSocketConnected } from '@lib/socket-client';
 import { queryKeys } from '@lib/query-keys';
 
 interface SocketProviderProps {
@@ -72,7 +73,10 @@ export function SocketProvider({ children }: SocketProviderProps) {
 
     socket.on(SOCKET_EVENTS.QUOTE_UPDATED, (event: QuoteUpdatedEvent) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.quotes.byId(event.quoteId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.quotes.negotiations(event.quoteId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.quotes.all() });
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.byId(event.jobId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all() });
     });
 
     socket.on(SOCKET_EVENTS.MODIFICATION_REQUESTED, (event: ModificationRequestedEvent) => {
@@ -80,7 +84,23 @@ export function SocketProvider({ children }: SocketProviderProps) {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all() });
     });
 
+    // Attendance — fired when anyone in the tenant clocks in/out. Refresh the
+    // current day's roster + the active user's history so admin dashboards
+    // ("Who's clocked in right now?") stay correct without polling.
+    socket.on(SOCKET_EVENTS.ATTENDANCE_CLOCK, (_event: AttendanceClockEvent) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.attendance.today() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.attendance.history() });
+    });
+
+    // Re-attach on tab focus — Chrome/Safari sometimes background-throttle the
+    // socket and the auto-reconnect may have given up. This is idempotent.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') ensureSocketConnected();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       socket.removeAllListeners();
       disconnectSocket();
     };
