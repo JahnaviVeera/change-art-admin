@@ -22,6 +22,7 @@ export type JobStatus =
   | 'In Production'
   | 'Senior Review'
   | 'Sewout'
+  | 'Ready to Deliver'
   | 'Delivered'
   | 'Quote Submitted'
   | 'Quote Approved'
@@ -46,6 +47,15 @@ export interface Negotiation {
 
 export interface Job {
   id: string;
+  /** Backend UUID (IJobCard.id). Optional in mock data; required when calling
+   *  CS panel endpoints (send-price, reject, dispatch). When absent, the API
+   *  calls will warn and no-op instead of sending the human-readable job_id. */
+  uuid?: string;
+  /** Raw backend JobStatus enum (e.g. 'QUOTE_SUBMITTED', 'READY_TO_DELIVER').
+   *  The `status` field above is the UI-friendly collapsed string and loses
+   *  distinctions like READY_TO_DELIVER vs DELIVERED that gating logic needs.
+   *  Adapter sets this from IJobCard.status; mocks may omit it. */
+  rawStatus?: string;
   ref: string;
   client: string;
   clientId: string;

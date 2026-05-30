@@ -1,4 +1,5 @@
 import {
+  Bell,
   ClipboardList,
   FileCheck,
   Gauge,
@@ -205,6 +206,7 @@ export const NAV_CONFIG = {
           { id: 'jobs',       label: 'All Jobs',         to: '/admin/jobs',        icon: ClipboardList },
           { id: 'clients',    label: 'Clients',          to: '/admin/clients',     icon: Users },
           { id: 'users',      label: 'User Management',  to: '/admin/users',       icon: ShieldCheck },
+          { id: 'notifications', label: 'Notifications', to: '/admin/notifications', icon: Bell },
           // { id: 'reports',    label: 'Reports',          to: '/admin/reports',     icon: Gauge },
         ],
       },

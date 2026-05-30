@@ -248,6 +248,7 @@ function statusBadgeAccent(status: string): string {
     'In Production': 'amber',
     'Senior Review': 'purple',
     Sewout: 'purple',
+    'Ready to Deliver': 'teal',
     Delivered: 'green',
     'Quote Submitted': 'blue',
     'Quote Approved': 'amber',
@@ -317,13 +318,6 @@ function TableView({
             <tr key={j.id} onClick={() => onOpen?.(j)}>
               <td>
                 <div className="job-cell">
-                  <img
-                    className="job-thumb"
-                    src={jobImage(j, 0, 160, 120)}
-                    alt=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
                   <div>
                     <span className="ref-code">{j.id}</span>
                     <div className="text-[10.5px] text-text-muted font-medium mt-0.5">{j.ref}</div>
@@ -340,7 +334,7 @@ function TableView({
               <td>
                 <img
                   className="table-preview"
-                  src={jobImage(j, 1, 220, 160)}
+                  src={jobImage(j, 0, 220, 160)}
                   alt={`${j.design} preview`}
                   loading="lazy"
                   referrerPolicy="no-referrer"
@@ -415,7 +409,7 @@ function GridView({
             <div className="jc-img">
               <img
                 className="w-full h-[90px] md:h-[110px] object-cover block"
-                src={jobImage(j, 2, 400, 300)}
+                src={jobImage(j, 0, 400, 300)}
                 alt={j.design}
                 loading="lazy"
                 referrerPolicy="no-referrer"
@@ -473,7 +467,7 @@ function ListView({
         >
           <div className="list-thumb">
             <img
-              src={jobImage(j, 3, 120, 120)}
+              src={jobImage(j, 0, 120, 120)}
               alt=""
               loading="lazy"
               referrerPolicy="no-referrer"

@@ -79,10 +79,24 @@ export interface IClient {
   email: string;
   date: IsoDateTime;
   location: string | null;
+  address: string | null;
   payment_mode: PaymentMode | null;
+  card_on_file: ICardOnFile | null;
   user_id: string | null;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
+}
+
+/**
+ * Non-sensitive card metadata persisted alongside a client when payment_mode
+ * is CARD. The actual processor token is stored server-side and never exposed
+ * to the admin panel.
+ */
+export interface ICardOnFile {
+  brand: string;
+  last4: string;
+  exp_month: number;
+  exp_year: number;
 }
 
 /**

@@ -864,13 +864,22 @@ html[data-theme='light'] .mb-track {
   /* ─ Two col layout (main + side rail) ─ */
   .two-col {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    /* `minmax(0, 1fr)` lets the left column shrink below its intrinsic
+       min-content. Without this, a dense job-card grid in the left column
+       can force the layout wider than the viewport and trigger an
+       unwanted horizontal scrollbar (visible on narrower Mac viewports). */
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: 16px;
+    min-width: 0;
   }
 
-  @media (max-width: 900px) {
+  .two-col > * {
+    min-width: 0;
+  }
+
+  @media (max-width: 1100px) {
     .two-col {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
@@ -2633,13 +2642,20 @@ html[data-theme='light'] .mb-track {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     display: flex;
-    align-items: flex-start;
+    /* `safe center` centers the modal when it fits the viewport but falls
+       back to start-alignment when the modal is taller — without this,
+       a tall modal gets its header clipped above the scroll origin. */
+    align-items: safe center;
     justify-content: center;
-    padding: 36px 20px 60px;
+    padding: 24px 16px;
     overflow-y: auto;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.22s;
+  }
+
+  @media (max-width: 640px) {
+    .modal-overlay { padding: 12px 8px; }
   }
 
   .modal-overlay.open {

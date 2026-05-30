@@ -1,15 +1,19 @@
-import { useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Pencil, Search } from 'lucide-react';
 import { GreetingHero, Pagination, Panel, StatGrid } from '@modules/shared-ui';
 import { PaymentMode } from '@contracts';
 import type { IClient } from '@contracts';
 import { useAdminClients } from '../../modules/admin-panel/hooks/use-admin-clients';
+import { useProfileChangeRequests } from '../../modules/admin-panel/hooks/use-profile-change-requests';
 import {
   ClientDetailModal,
   type ClientModalMode,
 } from '../../modules/admin-panel/components/ClientDetailModal';
+import { ProfileChangeRequestsTab } from '../../modules/admin-panel/components/ProfileChangeRequestsTab';
 
 const PER_PAGE = 20;
+
+type Tab = 'clients' | 'requests';
 
 function formatPaymentMode(mode: PaymentMode | null): string {
   if (!mode) return '—';
@@ -30,11 +34,52 @@ function currentMonthCount(items: { created_at: string }[]): number {
   }).length;
 }
 
+function useDebounced<T>(value: T, ms = 300): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(id);
+  }, [value, ms]);
+  return debounced;
+}
+
 export function AdminClientsPage() {
+  const [tab, setTab] = useState<Tab>('clients');
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<{ client: IClient; mode: ClientModalMode } | null>(null);
 
-  const { data, isLoading, isError } = useAdminClients({ page, per_page: PER_PAGE });
+  const debouncedSearch = useDebounced(search, 300);
+
+  // Pending count for the toggle badge — same query key as the sidebar hook,
+  // so this is a cache hit.
+  const { data: pendingCRs } = useProfileChangeRequests({
+    status: 'PENDING',
+    per_page: 100,
+  });
+  const pendingCount = pendingCRs?.meta.total ?? 0;
+
+  const clientsFilters = useMemo(
+    () => ({
+      page,
+      per_page: PER_PAGE,
+      ...(debouncedSearch.trim() ? { search: debouncedSearch.trim() } : {}),
+    }),
+    [page, debouncedSearch],
+  );
+
+  const { data, isLoading, isError } = useAdminClients(clientsFilters);
+
+  // Reset to page 1 whenever the active search changes.
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  // Reset state when switching tabs.
+  useEffect(() => {
+    setSearch('');
+    setPage(1);
+  }, [tab]);
 
   const clients = data?.items ?? [];
   const total = data?.meta.total ?? 0;
@@ -51,7 +96,7 @@ export function AdminClientsPage() {
         stats={[
           { accent: 'blue',    label: 'Active Accounts', value: isLoading ? '…' : total },
           { accent: 'green',   label: 'New (mo.)',        value: isLoading ? '…' : currentMonthCount(clients) },
-          { accent: 'crimson', label: 'At Risk',          value: 0 },
+          { accent: 'crimson', label: 'Profile Requests', value: pendingCount },
           {
             accent: 'gold',
             label: 'Top Client',
@@ -60,8 +105,69 @@ export function AdminClientsPage() {
         ]}
       />
 
-      <Panel title={`All Clients${total ? ` (${total})` : ''}`}>
-        {isLoading ? (
+      <Panel
+        title={
+          tab === 'clients'
+            ? `All Clients${total ? ` (${total})` : ''}`
+            : 'Profile Change Requests'
+        }
+      >
+        {/* Tab toggle + search bar */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <div className="flex items-center gap-1 p-0.5 rounded-md border border-glass-border">
+            <button
+              type="button"
+              className={`btn ${tab === 'clients' ? 'btn-crimson' : 'btn-outline'}`}
+              onClick={() => setTab('clients')}
+            >
+              Clients
+            </button>
+            <button
+              type="button"
+              className={`btn ${tab === 'requests' ? 'btn-crimson' : 'btn-outline'}`}
+              onClick={() => setTab('requests')}
+            >
+              Profile Requests
+              {pendingCount > 0 ? (
+                <span
+                  className="ml-1 inline-flex items-center justify-center text-[10px] font-bold rounded-full px-1.5"
+                  style={{
+                    background: 'var(--crimson)',
+                    color: 'white',
+                    minWidth: 16,
+                    height: 16,
+                  }}
+                >
+                  {pendingCount}
+                </span>
+              ) : null}
+            </button>
+          </div>
+
+          <div className="relative flex-1 min-w-[200px] max-w-md ml-auto">
+            <Search
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-faint"
+              aria-hidden
+            />
+            <input
+              type="search"
+              className="fi"
+              style={{ paddingLeft: 28 }}
+              placeholder={
+                tab === 'clients'
+                  ? 'Search by name, company, email, or client ID…'
+                  : 'Search by client name, company, or proposed value…'
+              }
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search"
+            />
+          </div>
+        </div>
+
+        {tab === 'requests' ? (
+          <ProfileChangeRequestsTab search={debouncedSearch} />
+        ) : isLoading ? (
           <div className="flex items-center justify-center py-12 text-text-faint text-sm">
             Loading clients…
           </div>
@@ -71,7 +177,7 @@ export function AdminClientsPage() {
           </div>
         ) : clients.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-text-faint text-sm">
-            No clients found.
+            {debouncedSearch.trim() ? 'No clients match your search.' : 'No clients found.'}
           </div>
         ) : (
           <>

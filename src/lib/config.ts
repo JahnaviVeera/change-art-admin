@@ -72,6 +72,13 @@ if (!parsed.success) {
 
 export const config: AppConfig = parsed.data;
 
+if (import.meta.env.DEV) {
+  // Print the resolved URLs once so a misconfigured .env is obvious in the
+  // console (the symptom otherwise is a silent retry loop in the WS tab).
+  console.info('[config] apiBaseUrl =', config.apiBaseUrl);
+  console.info('[config] wsUrl      =', config.wsUrl);
+}
+
 /** Whether Firebase Cloud Messaging is fully configured. */
 export const isFcmConfigured: boolean = Boolean(
   config.firebase.apiKey &&

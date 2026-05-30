@@ -1,6 +1,44 @@
 import { apiClient } from '@lib/api-client';
 import type { IClient, IJobCard, IUser, PaginatedList } from '@contracts';
 
+// ─── Client profile change requests (admin review queue) ──────────────────
+// Local to this module — not in @contracts because the backend enum mirror
+// hasn't been pulled across yet. See PROFILE_CHANGE_REQUEST_API.md.
+
+export type ChangeRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface ProfileChangeRequest {
+  id: string;
+  tenant_id: string;
+  client_id: string;
+  requested_by_user_id: string | null;
+  status: ChangeRequestStatus;
+  changes: Partial<{
+    client_name: string;
+    company_name: string | null;
+    contact_name: string;
+    contact_number: string;
+    location: string | null;
+    address: string | null;
+  }>;
+  review_note: string | null;
+  reviewed_by_user_id: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  client: {
+    client_id: string;
+    client_name: string;
+    company_name: string | null;
+  } | null;
+}
+
+export interface ProfileChangeRequestFilters {
+  status?: ChangeRequestStatus;
+  page?: number;
+  per_page?: number;
+}
+
 export interface JobCardFilters {
   status?: string;
   order_type?: string;
@@ -101,5 +139,28 @@ export const adminService = {
   // Soft delete — marks the user inactive and invalidates their sessions.
   deactivateUser(id: string): Promise<IUser> {
     return apiClient.patch<IUser>(`/api/v1/users/${id}/deactivate`);
+  },
+
+  listProfileChangeRequests(
+    filters: ProfileChangeRequestFilters = {},
+  ): Promise<PaginatedList<ProfileChangeRequest>> {
+    return apiClient.getPaginated<ProfileChangeRequest>(
+      '/api/v1/clients/profile-change-requests',
+      { params: { per_page: 100, ...filters } as Record<string, unknown> },
+    );
+  },
+
+  approveProfileChangeRequest(id: string, note?: string): Promise<ProfileChangeRequest> {
+    return apiClient.post<ProfileChangeRequest, { note?: string }>(
+      `/api/v1/clients/profile-change-requests/${id}/approve`,
+      note ? { note } : {},
+    );
+  },
+
+  rejectProfileChangeRequest(id: string, note?: string): Promise<ProfileChangeRequest> {
+    return apiClient.post<ProfileChangeRequest, { note?: string }>(
+      `/api/v1/clients/profile-change-requests/${id}/reject`,
+      note ? { note } : {},
+    );
   },
 };

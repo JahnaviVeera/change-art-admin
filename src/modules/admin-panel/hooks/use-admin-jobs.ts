@@ -74,9 +74,10 @@ export function useAdminJobViews(filters: JobCardFilters = {}): {
     return jobsQuery.data.items.map((card) => {
       const job = adaptJobCard(card, clientsMap, new Map());
       const url = thumbs[card.id];
-      // Backend returns a single thumbnail per job; JobTable's table/grid/list
-      // views read indices 0–3, so fill each slot with the same image.
-      if (url) job.images = [url, url, url, url];
+      // Backend returns a single thumbnail per job. Store it as a single-entry
+      // array so the modal's carousel renders one tile (instead of duplicating
+      // the same preview into multiple carousel slots).
+      if (url) job.images = [url];
       return job;
     });
   }, [jobsQuery.data, clientsMap, thumbnailsQuery.data]);

@@ -24,6 +24,21 @@ export interface JobStatusChangedEvent {
   timestamp: IsoDateTime;
 }
 
+/**
+ * A brand-new job card was written. Fired in addition to any status event
+ * so admin list views can prepend the row instantly and badge counts.
+ */
+export interface JobCreatedEvent {
+  jobId: string;
+  humanJobId: string;
+  clientId: string;
+  status: JobStatus;
+  projectType: string;
+  triggeredBy: string;
+  triggeredByRole: string;
+  timestamp: IsoDateTime;
+}
+
 export interface JobAssignedEvent {
   jobId: string;
   assignedTo: string;
@@ -99,6 +114,7 @@ export interface TypingIndicatorEvent {
 
 export const SOCKET_EVENTS = {
   JOB_STATUS_CHANGED: 'job-status-changed',
+  JOB_CREATED: 'job-created',
   JOB_ASSIGNED: 'job-assigned',
   REVIEW_SUBMITTED: 'review-submitted',
   NOTIFICATION_NEW: 'notification-new',
@@ -120,6 +136,7 @@ export type SocketEventName = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS]
  */
 export interface ServerToClientEventMap {
   [SOCKET_EVENTS.JOB_STATUS_CHANGED]: JobStatusChangedEvent;
+  [SOCKET_EVENTS.JOB_CREATED]: JobCreatedEvent;
   [SOCKET_EVENTS.JOB_ASSIGNED]: JobAssignedEvent;
   [SOCKET_EVENTS.REVIEW_SUBMITTED]: ReviewSubmittedEvent;
   [SOCKET_EVENTS.NOTIFICATION_NEW]: NotificationNewEvent;

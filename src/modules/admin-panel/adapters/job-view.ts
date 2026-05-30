@@ -91,9 +91,9 @@ const STATUS_MAP: Record<JobStatus, StageDisplay> = {
   [JobStatus.SEWOUT_IN_PROGRESS]: { status: 'Sewout', stage: 'sewout' },
   [JobStatus.SUBMITTED_TO_QC]: { status: 'In QC', stage: 'qc' },
   [JobStatus.QC_REVIEW]: { status: 'In QC', stage: 'qc' },
-  [JobStatus.QC_APPROVED]: { status: 'Delivered', stage: 'delivered' },
+  [JobStatus.QC_APPROVED]: { status: 'Ready to Deliver', stage: 'delivered' },
   [JobStatus.QC_REJECTED]: { status: 'In Production', stage: 'junior' },
-  [JobStatus.READY_TO_DELIVER]: { status: 'Delivered', stage: 'delivered' },
+  [JobStatus.READY_TO_DELIVER]: { status: 'Ready to Deliver', stage: 'delivered' },
   [JobStatus.DELIVERED]: { status: 'Delivered', stage: 'delivered' },
   [JobStatus.MODIFICATION_REQUESTED]: { status: 'Amend', stage: 'qc' },
   [JobStatus.CLOSED]: { status: 'Delivered', stage: 'delivered' },
@@ -131,6 +131,7 @@ export function adaptJobCard(
 
   return {
     id: card.job_id,
+    uuid: card.id,
     ref: card.reference_number,
     client: clientInfo?.name ?? card.mail,
     clientId: clientInfo?.clientId ?? card.client_id,
@@ -145,6 +146,7 @@ export function adaptJobCard(
     priority: PRIORITY_DISPLAY[card.priority] ?? 'Normal',
     etaHours: card.eta_hours,
     status: mapped.status,
+    rawStatus: card.status,
     stage: mapped.stage,
     assignedTo,
     subType,

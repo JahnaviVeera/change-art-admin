@@ -56,6 +56,14 @@ export const ERROR_CODES = {
   QUOTE_FINALIZED: 'QUOTE_FINALIZED',
   QUOTE_INVALID_ACTION: 'QUOTE_INVALID_ACTION',
 
+  // Payment & Dispatch
+  CARD_VALIDATION_FAILED: 'CARD_VALIDATION_FAILED',
+  CARD_PROCESSOR_ERROR: 'CARD_PROCESSOR_ERROR',
+  PAYMENT_METHOD_UNAVAILABLE: 'PAYMENT_METHOD_UNAVAILABLE',
+  JOB_NOT_READY_FOR_DISPATCH: 'JOB_NOT_READY_FOR_DISPATCH',
+  NO_DELIVERABLE_FILES: 'NO_DELIVERABLE_FILES',
+  JOB_ALREADY_DISPATCHED: 'JOB_ALREADY_DISPATCHED',
+
   // Attendance
   ALREADY_CLOCKED_IN: 'ALREADY_CLOCKED_IN',
   NOT_CLOCKED_IN: 'NOT_CLOCKED_IN',
@@ -117,6 +125,13 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   QUOTE_NOT_FOUND: 'This quote was not found.',
   QUOTE_FINALIZED: 'This quote is final and cannot be changed.',
   QUOTE_INVALID_ACTION: 'This quote action is not allowed right now.',
+
+  CARD_VALIDATION_FAILED: "We couldn't validate that card.",
+  CARD_PROCESSOR_ERROR: 'Bank declined this card.',
+  PAYMENT_METHOD_UNAVAILABLE: 'Card updates temporarily unavailable.',
+  JOB_NOT_READY_FOR_DISPATCH: 'This job is not in QC yet.',
+  NO_DELIVERABLE_FILES: 'Upload at least one completed file before dispatching.',
+  JOB_ALREADY_DISPATCHED: 'This job was already delivered.',
 
   ALREADY_CLOCKED_IN: "You're already clocked in.",
   NOT_CLOCKED_IN: 'You are not clocked in.',

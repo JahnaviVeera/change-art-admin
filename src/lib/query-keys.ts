@@ -23,6 +23,8 @@ export const queryKeys = {
     list: (filters?: Record<string, unknown>) => ['clients', 'list', filters ?? {}] as const,
     byId: (id: string) => ['clients', 'byId', id] as const,
     me: () => ['clients', 'me'] as const,
+    changeRequests: (filters?: Record<string, unknown>) =>
+      ['clients', 'change-requests', filters ?? {}] as const,
   },
 
   jobs: {

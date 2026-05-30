@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Pencil, Trash2 } from 'lucide-react';
 import { ConfirmModal } from '@modules/shared-ui';
-import type { IClient } from '@contracts';
+import type { IClient, ICardOnFile } from '@contracts';
 import { PaymentMode } from '@contracts';
 import { useDeleteClient, useUpdateClient } from '../hooks/use-admin-clients';
 import type { UpdateClientBody } from '../services/admin.service';
@@ -27,6 +27,13 @@ function formatDate(iso: string): string {
     month: 'short',
     day: '2-digit',
   });
+}
+
+function formatCardOnFile(card: ICardOnFile | null): string {
+  if (!card) return 'No card on file';
+  const mm = String(card.exp_month).padStart(2, '0');
+  const yy = String(card.exp_year % 100).padStart(2, '0');
+  return `${card.brand} ending in ${card.last4} (Exp ${mm}/${yy})`;
 }
 
 interface ClientDetailModalProps {
@@ -93,9 +100,11 @@ export function ClientDetailModal({ client, mode = 'view', onClose }: ClientDeta
     ['Full Name', client.client_name],
     ['Company', client.company_name ?? '—'],
     ['Contact Person', client.contact_name],
-    ['Phone', client.contact_number],
+    ['Phone', client.contact_number?.trim() ? client.contact_number : '—'],
     ['Email', client.email],
     ['Location', client.location ?? '—'],
+    ['Address', client.address?.trim() ? client.address : '—'],
+    ['Card on file', formatCardOnFile(client.card_on_file)],
     ['Payment Mode', formatPaymentMode(client.payment_mode)],
     ['Member Since', formatDate(client.date)],
     ['Record Created', formatDate(client.created_at)],
