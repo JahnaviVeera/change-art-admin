@@ -4,10 +4,6 @@ import {
   Send,
   Save,
   Upload,
-  Sparkles,
-  Stamp,
-  Brush,
-  Package,
   ArrowRight,
   ArrowLeft,
   Check,
@@ -21,29 +17,30 @@ interface CreateJobFormProps {
   onSubmit?: (id: string) => void;
 }
 
-type Category = 'artwork' | 'digitizing' | 'swatches' | 'extras';
+type Category = 'artwork' | 'digitizing' | 'swatches' | 'extras' | 'others';
 
-const ORDER_TYPES: { id: Category; label: string; sub: string; icon: typeof Brush }[] = [
-  { id: 'artwork',    label: 'Artwork',            sub: 'Logo, Vector, Illustration', icon: Brush },
-  { id: 'digitizing', label: 'Digitizing Services',sub: 'Embroidery conversion',      icon: Stamp },
-  { id: 'swatches',   label: 'Swatches',           sub: 'Physical sample review',     icon: Sparkles },
-  { id: 'extras',     label: 'Patches & Extras',   sub: 'Custom patches, Name drops', icon: Package },
+const ORDER_TYPES: { id: Category; label: string; sub: string; icon: string }[] = [
+  { id: 'artwork',    label: 'Artwork',                             sub: 'Logo, Vector, Illustration', icon: '🎨' },
+  { id: 'digitizing', label: 'Digitizing Services',                 sub: 'Embroidery conversion',      icon: '🧵' },
+  { id: 'swatches',   label: 'Embroidery Digitizing Swatches Only', sub: 'Physical sample review',     icon: '🪡' },
+  { id: 'extras',     label: 'Patches & Extras',                    sub: 'Custom patches, Name drops', icon: '📦' },
+  { id: 'others',     label: 'Others',                              sub: 'Custom request',             icon: '✨' },
 ];
 
-// Specific services per category — mirrors the client portal v5 serviceMap.
+// Specific services per category — mirrors the client portal serviceMap.
 // An empty list means the category has no sub-service selection.
 const SERVICE_MAP: Record<Category, string[]> = {
   artwork: [
-    'Vector Artwork', 'Illustration', 'Color Separation', 'Cut Contour',
-    'Creative Designs', 'Line Art Conversions', 'Product / Virtual Mock Ups',
-    'Image Rendering', 'Color Correction', 'Brochure Designing',
-    'Clipping Path', 'Channel Mask', 'Business Card Designs',
+    'Vector Artwork', 'Product / Virtual Mock Ups', 'Cut Contour', 'Color Separation',
+    'Creative Designs', 'Line Art Conversions', 'Image Rendering', 'Color Correction',
+    'Brochure Designing', 'Clipping Path', 'Channel Mask', 'Business Card Designs',
     'Packaging Designs', 'Product Branding', 'Image Manipulation',
-    'Black & White To Color',
+    'Black & White To Color', 'Illustration',
   ],
   digitizing: ['Embroidery Digitizing', 'Embroidery Digitizing Swatches'],
   swatches: [],
   extras: ['Custom Embroidery Patches', 'Name Drops'],
+  others: [],
 };
 
 const OUTPUT_FORMATS = ['PDF', 'EPS', 'AI', 'CDR'];
@@ -201,8 +198,8 @@ export function CreateJobForm({ mode, onSubmit }: CreateJobFormProps) {
             title={`${isOrder ? 'Place New Order' : 'New Quote Request'} — Select Service Type`}
             lastStep
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-4">
-              {ORDER_TYPES.map(({ id, label, sub, icon: Icon }) => {
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-4">
+              {ORDER_TYPES.map(({ id, label, sub, icon }) => {
                 const active = category === id;
                 return (
                   <button
@@ -216,7 +213,7 @@ export function CreateJobForm({ mode, onSubmit }: CreateJobFormProps) {
                     }}
                     aria-pressed={active}
                   >
-                    <Icon className="w-6 h-6 mx-auto mb-1.5 text-text" aria-hidden />
+                    <span className="text-2xl block mb-1.5" aria-hidden>{icon}</span>
                     <div className="text-[12px] font-bold text-text">{label}</div>
                     <div className="text-[10.5px] text-text-muted">{sub}</div>
                   </button>
