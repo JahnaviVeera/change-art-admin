@@ -13,11 +13,11 @@ const STORAGE_KEY = 'cpm-theme';
 
 function readStoredTheme(): Theme {
   if (typeof window === 'undefined') return Theme.LIGHT;
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === Theme.LIGHT || stored === Theme.DARK) return stored;
+  // const stored = window.localStorage.getItem(STORAGE_KEY);
+  // if (stored === Theme.LIGHT || stored === Theme.DARK) return stored;
   // Light is the canonical default. The system-preference fallback is opt-in
   // via the topbar toggle, not auto-detected, to match the demo's behaviour.
-  return Theme.LIGHT;
+  return Theme.DARK;
 }
 
 function applyTheme(theme: Theme): void {
