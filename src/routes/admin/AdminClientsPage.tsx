@@ -9,6 +9,7 @@ import {
   ClientDetailModal,
   type ClientModalMode,
 } from '../../modules/admin-panel/components/ClientDetailModal';
+import { ClientAccessGateModal } from '../../modules/admin-panel/components/ClientAccessGateModal';
 import { ProfileChangeRequestsTab } from '../../modules/admin-panel/components/ProfileChangeRequestsTab';
 
 const PER_PAGE = 20;
@@ -47,6 +48,9 @@ export function AdminClientsPage() {
   const [tab, setTab] = useState<Tab>('clients');
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  // Gate state: pending verification before opening the detail modal.
+  const [gate, setGate] = useState<{ client: IClient; mode: ClientModalMode } | null>(null);
+  // Detail modal state: opened only after gate is verified.
   const [selected, setSelected] = useState<{ client: IClient; mode: ClientModalMode } | null>(null);
 
   const debouncedSearch = useDebounced(search, 300);
@@ -200,13 +204,13 @@ export function AdminClientsPage() {
                     <tr
                       key={c.id}
                       className="cursor-pointer"
-                      onClick={() => setSelected({ client: c, mode: 'view' })}
+                      onClick={() => setGate({ client: c, mode: 'view' })}
                     >
                       <td><span className="ref-code">{c.client_id}</span></td>
                       <td className="font-semibold">{c.contact_name}</td>
                       <td className="text-text-muted">{c.company_name ?? '—'}</td>
                       <td className="font-mono text-[11.5px] text-text-muted">{c.contact_number}</td>
-                      <td className="text-text-muted">{c.email}</td>
+                      <td className="text-text-muted">••••••••••</td>
                       <td className="text-text-muted">{c.location ?? '—'}</td>
                       <td><span className="badge gray">{formatPaymentMode(c.payment_mode)}</span></td>
                       <td onClick={(e) => e.stopPropagation()}>
@@ -214,7 +218,7 @@ export function AdminClientsPage() {
                           type="button"
                           className="btn btn-outline"
                           aria-label={`Edit ${c.contact_name}`}
-                          onClick={() => setSelected({ client: c, mode: 'edit' })}
+                          onClick={() => setGate({ client: c, mode: 'edit' })}
                         >
                           <Pencil aria-hidden className="w-3.5 h-3.5" />
                           Edit
@@ -236,6 +240,17 @@ export function AdminClientsPage() {
           </>
         )}
       </Panel>
+
+      {/* Security gate — must verify password before detail modal opens */}
+      <ClientAccessGateModal
+        client={gate?.client ?? null}
+        mode={gate?.mode ?? 'view'}
+        onVerified={(client, mode) => {
+          setGate(null);
+          setSelected({ client, mode });
+        }}
+        onClose={() => setGate(null)}
+      />
 
       <ClientDetailModal
         client={selected?.client ?? null}

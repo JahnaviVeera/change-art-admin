@@ -163,6 +163,14 @@ export const adminService = {
     return apiClient.patch<IUser, UpdateUserBody>(`/api/v1/users/${id}`, body);
   },
 
+  /**
+   * Fire-and-forget: logs a client record access event so the backend can
+   * notify the administrator (John Peter) that client data was viewed or edited.
+   */
+  logClientAccess(clientId: string): Promise<void> {
+    return apiClient.post<void>(`/api/v1/clients/${clientId}/access-log`);
+  },
+
   // Soft delete — marks the user inactive and invalidates their sessions.
   deactivateUser(id: string): Promise<IUser> {
     return apiClient.patch<IUser>(`/api/v1/users/${id}/deactivate`);
