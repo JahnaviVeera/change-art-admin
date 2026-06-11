@@ -170,9 +170,7 @@ export function adaptJobCard(
     fabric: card.fabric ?? undefined,
     stitchCount: card.stitch_count ?? undefined,
     acknowledgedAt: card.acknowledgement_sent_at
-      ? card.acknowledgement_sent_at instanceof Date
-        ? card.acknowledgement_sent_at.toISOString()
-        : String(card.acknowledgement_sent_at)
+      ? String(card.acknowledgement_sent_at)
       : null,
     isAdminCopy: card.is_admin_copy ?? false,
     parentJobId: card.parent_job_id ?? null,

@@ -360,15 +360,6 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
     );
   };
 
-  const handleRejectQuote = () => {
-    const id = requireUuid('reject quote');
-    if (!id) return;
-    rejectQuote.mutate(
-      { jobId: id, body: {} },
-      { onSuccess: handleClose },
-    );
-  };
-
   const handleDispatchSubmit = () => {
     const id = requireUuid('dispatch job');
     if (!id) return;
