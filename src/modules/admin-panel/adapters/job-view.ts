@@ -169,5 +169,10 @@ export function adaptJobCard(
     height: card.height_inches ?? undefined,
     fabric: card.fabric ?? undefined,
     stitchCount: card.stitch_count ?? undefined,
+    acknowledgedAt: card.acknowledgement_sent_at
+      ? card.acknowledgement_sent_at instanceof Date
+        ? card.acknowledgement_sent_at.toISOString()
+        : String(card.acknowledgement_sent_at)
+      : null,
   };
 }

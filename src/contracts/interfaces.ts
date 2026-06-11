@@ -153,6 +153,7 @@ export interface IJobCard {
   assigned_sewout_id: string | null;
   version: number;
   is_locked: boolean;
+  acknowledgement_sent_at: IsoDateTime | null;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
 }

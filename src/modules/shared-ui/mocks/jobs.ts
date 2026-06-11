@@ -95,6 +95,8 @@ export interface Job {
   height?: number;
   fabric?: string;
   stitchCount?: number;
+  /** ISO timestamp when admin sent the acknowledgement. Countdown starts from here. */
+  acknowledgedAt?: string | null;
 }
 
 export const JOBS: Job[] = [
