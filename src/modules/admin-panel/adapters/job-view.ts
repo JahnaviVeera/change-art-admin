@@ -153,6 +153,8 @@ export function adaptJobCard(
     stage: mapped.stage,
     assignedTo,
     subType,
+    specificType: card.specific_type ?? null,
+    finalFiles: card.final_files ?? [],
     notes: card.notes ?? '',
     // Surface the agency-set quote so the JobDetailModal can render the
     // already-sent price as read-only when the job is in QUOTE_APPROVED.

@@ -839,9 +839,11 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
               <DetailRow label="Client"      value={job.client} />
               <DetailRow label="Client ID"   value={job.clientId} />
               <DetailRow label="Order Type"  value={job.order} />
+              {job.specificType ? <DetailRow label="Specific Service" value={job.specificType} /> : null}
               <DetailRow label="Complexity"  value={job.complexity} />
               {job.process ? <DetailRow label="Process" value={job.process} /> : null}
               <DetailRow label="Colors"      value={String(job.colors)} />
+              {job.finalFiles?.length ? <DetailRow label="Output Formats" value={job.finalFiles.join(', ')} /> : null}
               <DetailRow label="Assigned To" value={job.assignedTo ?? 'Unassigned'} />
               {job.subType ? <DetailRow label="Sub-Type" value={job.subType} /> : null}
             </div>

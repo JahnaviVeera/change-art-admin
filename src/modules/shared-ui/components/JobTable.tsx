@@ -493,7 +493,7 @@ function ListView({
             <div className="list-title">{j.design}</div>
             <div className="list-desc">{j.summary}</div>
             <div className="list-meta">
-              {j.ref || j.id} · {j.order} · {j.status}
+              {j.ref || j.id} · {j.order}{j.specificType ? ` · ${j.specificType}` : ''} · {j.status}
             </div>
             {renderRowActions ? renderRowActions(j) : null}
           </div>

@@ -70,7 +70,9 @@ export interface Job {
   process: string | null;
   priority: JobPriority;
   /** Numeric hours — matches backend `eta_hours`. Display as `${etaHours}h`. */
-  etaHours: number;
+  etaHours: number | null;
+  specificType?: string | null;
+  finalFiles?: string[];
   status: JobStatus;
   stage: JobStage;
   assignedTo: string | null;
