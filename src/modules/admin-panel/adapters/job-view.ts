@@ -174,5 +174,8 @@ export function adaptJobCard(
         ? card.acknowledgement_sent_at.toISOString()
         : String(card.acknowledgement_sent_at)
       : null,
+    isAdminCopy: card.is_admin_copy ?? false,
+    parentJobId: card.parent_job_id ?? null,
+    hasAdminCopy: card.has_admin_copy ?? false,
   };
 }

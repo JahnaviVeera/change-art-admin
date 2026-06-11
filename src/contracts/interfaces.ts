@@ -154,6 +154,9 @@ export interface IJobCard {
   version: number;
   is_locked: boolean;
   acknowledgement_sent_at: IsoDateTime | null;
+  is_admin_copy: boolean;
+  parent_job_id: string | null;
+  has_admin_copy: boolean;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
 }

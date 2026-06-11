@@ -97,6 +97,12 @@ export interface Job {
   stitchCount?: number;
   /** ISO timestamp when admin sent the acknowledgement. Countdown starts from here. */
   acknowledgedAt?: string | null;
+  /** True when this job record is the admin-managed copy (not the original client submission). */
+  isAdminCopy?: boolean;
+  /** UUID of the original client job this was copied from (present when isAdminCopy = true). */
+  parentJobId?: string | null;
+  /** True on the original when an admin copy has been created for it. */
+  hasAdminCopy?: boolean;
 }
 
 export const JOBS: Job[] = [
