@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Download, Edit2, UserPlus, Send, AlertCircle, ChevronLeft, ChevronRight, Timer, CheckCircle2 } from 'lucide-react';
+import { X, Download, Edit2, Send, AlertCircle, ChevronLeft, ChevronRight, Timer, CheckCircle2, PackageCheck } from 'lucide-react';
+import { MarkCompleteModal } from '@modules/cs-panel/components/MarkCompleteModal';
 import toast from 'react-hot-toast';
 import { cn } from '@lib/utils';
 import { type Job, jobImage } from '../mocks/jobs';
-import { useSendQuotePrice, useRejectQuote, useDispatchJob, useAcknowledgeJob } from '@/modules/cs-panel/hooks/use-cs-quote';
+import { useSendQuotePrice, useRejectQuote, useDispatchJob, useAcknowledgeJob, useNotifyOrderReady } from '@/modules/cs-panel/hooks/use-cs-quote';
 import { useJobRoom } from '@lib/use-job-room';
 import { useAdminJobById, useJobThumbnail } from '@modules/admin-panel/hooks/use-admin-jobs';
 
@@ -154,7 +155,7 @@ function isReadyToDeliverStatus(job: Job): boolean {
   return normalizedStatus(job) === 'READY_TO_DELIVER';
 }
 
-export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = false }: JobDetailModalProps) {
+export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobDetailModalProps) {
   const [isIn, setIsIn] = useState(false);
   const [agencyPrice, setAgencyPrice] = useState('');
   const [confirmedEta, setConfirmedEta] = useState('');
@@ -169,6 +170,8 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [showDispatchConfirm, setShowDispatchConfirm] = useState(false);
+  const [showSendMailConfirm, setShowSendMailConfirm] = useState(false);
+  const [showMarkComplete, setShowMarkComplete] = useState(false);
   const [showAckPopover, setShowAckPopover] = useState(false);
   const [ackEtaHours, setAckEtaHours] = useState(() =>
     job?.etaHours != null ? String(job.etaHours) : '',
@@ -199,6 +202,7 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
   const rejectQuote = useRejectQuote();
   const dispatchJob = useDispatchJob();
   const acknowledgeJob = useAcknowledgeJob();
+  const notifyOrderReady = useNotifyOrderReady();
   const isSubmitting = sendPrice.isPending || rejectQuote.isPending;
 
   const etaCountdown = useEtaCountdown(job?.acknowledgedAt, job?.etaHours);
@@ -303,6 +307,7 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
   // wrongly open the quote popup.
   const isQuote = quoteView && isQuoteStageStatus(job);
   const isReadyToDeliver = isReadyToDeliverStatus(job);
+  const isCsApproved = normalizedStatus(job) === 'CS_APPROVED';
   const canAcknowledge = normalizedStatus(job) === 'JOB_PLACED' && !job.acknowledgedAt;
   const isAcknowledged = !!job.acknowledgedAt;
 
@@ -1546,11 +1551,22 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
             type="button"
             className="btn btn-crimson"
             style={{ fontSize: 12, padding: '7px 13px', gap: 6 }}
-            onClick={() => onAssign?.(job)}
+            onClick={() => setShowSendMailConfirm(true)}
           >
-            <UserPlus className="w-3.5 h-3.5" aria-hidden />
-            Assign Job
+            <Send className="w-3.5 h-3.5" aria-hidden />
+            Send Mail to Client
           </button>
+          {!isQuote && isCsApproved ? (
+            <button
+              type="button"
+              className="btn btn-crimson"
+              style={{ fontSize: 12, padding: '7px 13px', gap: 6 }}
+              onClick={() => setShowMarkComplete(true)}
+            >
+              <PackageCheck className="w-3.5 h-3.5" aria-hidden />
+              Mark Complete
+            </button>
+          ) : null}
           {!isQuote && isReadyToDeliver ? (
             <button
               type="button"
@@ -1565,6 +1581,17 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
         </div>
 
       </div>
+
+      {/* ── MARK COMPLETE MODAL ── */}
+      {showMarkComplete && jobUuid ? (
+        <MarkCompleteModal
+          jobId={jobUuid}
+          jobDesign={job.design}
+          orderType={job.order}
+          onClose={() => setShowMarkComplete(false)}
+          onSuccess={() => { setShowMarkComplete(false); handleClose(); }}
+        />
+      ) : null}
 
       {/* ── 2-STEP CONFIRMATION MODAL ── */}
       {showConfirm ? (
@@ -1798,6 +1825,168 @@ export function JobDetailModal({ job, onClose, onEdit, onAssign, quoteView = fal
                   </button>
                 );
               })()}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── SEND MAIL TO CLIENT CONFIRMATION MODAL ── */}
+      {showSendMailConfirm ? (
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{
+            background: 'rgba(15,23,42,0.55)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            zIndex: 60,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !notifyOrderReady.isPending) {
+              setShowSendMailConfirm(false);
+            }
+          }}
+          role="presentation"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Send Order Ready Email"
+            className="relative w-full max-w-[460px] rounded-2xl flex flex-col overflow-hidden"
+            style={{
+              background: '#fff',
+              boxShadow: '0 32px 80px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.06)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              className="flex items-start gap-3 px-6 py-5"
+              style={{
+                background: 'linear-gradient(135deg, #EFF6FF, #DBEAFE)',
+                borderBottom: '1px solid #93C5FD',
+              }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: 'rgba(37,99,235,0.12)',
+                  border: '1.5px solid rgba(37,99,235,0.25)',
+                }}
+              >
+                <Send className="w-4 h-4" style={{ color: '#2563EB' }} aria-hidden />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#1E3A8A', letterSpacing: '0.01em', marginBottom: 2 }}>
+                  Send Order Ready Email
+                </div>
+                <div style={{ fontSize: 12, color: '#1D4ED8', opacity: 0.85 }}>
+                  Notify the client that their order is ready for delivery.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { if (!notifyOrderReady.isPending) setShowSendMailConfirm(false); }}
+                disabled={notifyOrderReady.isPending}
+                aria-label="Close"
+                style={{
+                  color: '#1E3A8A', opacity: 0.6, background: 'none', border: 'none',
+                  fontSize: 18, cursor: notifyOrderReady.isPending ? 'not-allowed' : 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 flex flex-col gap-4">
+              <div
+                className="flex flex-col gap-2.5"
+                style={{
+                  background: '#EFF6FF', border: '1.5px solid #93C5FD',
+                  borderRadius: 12, padding: '16px 18px',
+                  boxShadow: '0 4px 24px rgba(37,99,235,0.06)',
+                }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#1E3A8A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+                  What this will do
+                </div>
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
+                  <li style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, color: '#1E3A8A', fontWeight: 600, lineHeight: 1.5 }}>
+                    <span style={{ color: '#16A34A', fontWeight: 800 }}>✓</span>
+                    Send an email to the client notifying them their order is ready
+                  </li>
+                  <li style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, color: '#1E3A8A', fontWeight: 600, lineHeight: 1.5 }}>
+                    <span style={{ color: '#16A34A', fontWeight: 800 }}>✓</span>
+                    The job status will not change
+                  </li>
+                  <li style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, color: '#1E3A8A', fontWeight: 600, lineHeight: 1.5 }}>
+                    <span style={{ color: '#16A34A', fontWeight: 800 }}>✓</span>
+                    Client will be asked to log in and review their deliverables
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                className="flex items-start gap-3"
+                style={{
+                  background: 'rgba(37,99,235,0.05)',
+                  border: '1px solid rgba(37,99,235,0.15)',
+                  borderRadius: 10, padding: '12px 14px',
+                }}
+              >
+                <AlertCircle className="w-4 h-4" style={{ color: '#2563EB', flexShrink: 0, marginTop: 1 }} aria-hidden />
+                <div style={{ fontSize: 12, color: '#1D4ED8', lineHeight: 1.55, fontWeight: 600 }}>
+                  The email will be sent to the client on record for <strong>{job.design}</strong> ({job.ref}).
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div
+              className="flex items-center justify-end gap-2.5 px-6 py-4"
+              style={{ background: 'rgba(0,0,0,0.02)', borderTop: '1px solid #E8EDF5' }}
+            >
+              <button
+                type="button"
+                onClick={() => { if (!notifyOrderReady.isPending) setShowSendMailConfirm(false); }}
+                disabled={notifyOrderReady.isPending}
+                style={{
+                  border: '1.5px solid #E2E8F0', color: '#475569', fontWeight: 700,
+                  background: 'transparent', borderRadius: 99, padding: '9px 20px',
+                  fontSize: 12.5, cursor: notifyOrderReady.isPending ? 'not-allowed' : 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  opacity: notifyOrderReady.isPending ? 0.5 : 1,
+                }}
+              >
+                ✕ Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const id = requireUuid('send mail');
+                  if (!id) return;
+                  notifyOrderReady.mutate(
+                    { jobId: id },
+                    { onSuccess: () => { setShowSendMailConfirm(false); } },
+                  );
+                }}
+                disabled={notifyOrderReady.isPending}
+                style={{
+                  background: '#2563EB',
+                  border: '1.5px solid #2563EB',
+                  color: '#fff', padding: '9px 22px', fontSize: 12.5, fontWeight: 700,
+                  borderRadius: 99,
+                  cursor: notifyOrderReady.isPending ? 'not-allowed' : 'pointer',
+                  opacity: notifyOrderReady.isPending ? 0.6 : 1,
+                  boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
+                  transition: 'all 0.15s ease',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                <Send className="w-3.5 h-3.5" aria-hidden />
+                {notifyOrderReady.isPending ? 'Sending…' : 'Send Email'}
+              </button>
             </div>
           </div>
         </div>
