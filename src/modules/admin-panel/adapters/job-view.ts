@@ -175,5 +175,6 @@ export function adaptJobCard(
     isAdminCopy: card.is_admin_copy ?? false,
     parentJobId: card.parent_job_id ?? null,
     hasAdminCopy: card.has_admin_copy ?? false,
+    clientPo: card.client_po ?? null,
   };
 }

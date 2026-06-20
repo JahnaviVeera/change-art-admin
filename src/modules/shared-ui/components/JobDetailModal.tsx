@@ -541,14 +541,25 @@ export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobD
     try {
       for (const f of uniqueFiles) {
         const res = await adminService.getDownloadUrl(f.id);
-        const link = document.createElement('a');
-        link.href = res.url;
-        link.setAttribute('target', '_blank');
-        link.setAttribute('download', f.file_name);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        try {
+          // Fetch as blob so the browser triggers a real save-to-disk download
+          // instead of navigating to the S3 URL (cross-origin URLs ignore the
+          // download attribute and just open in a new tab).
+          const response = await fetch(res.url);
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = objectUrl;
+          link.download = f.file_name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(objectUrl);
+        } catch {
+          // Fallback: open in new tab if blob fetch fails
+          window.open(res.url, '_blank', 'noopener,noreferrer');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
       toast.success('Downloads started successfully.', { id: toastId });
     } catch (err) {
@@ -1087,36 +1098,39 @@ export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobD
                   <div className="flex flex-col min-w-0">
                     <SectionLabel>JOB IMAGES</SectionLabel>
                     <div className="relative flex-1" style={{ minHeight: 0 }}>
-                      <button
-                        type="button"
-                        onClick={navPrev}
-                        disabled={atStart}
-                        aria-label="Previous image"
-                        style={{
-                          ...arrowBase,
-                          left: -14,
-                          opacity: atStart ? 0.25 : 1,
-                          cursor: atStart ? 'default' : 'pointer',
-                        }}
-                      >
-                        <ChevronLeft className="w-3.5 h-3.5" />
-                      </button>
+                      {totalImages !== 1 && (
+                        <button
+                          type="button"
+                          onClick={navPrev}
+                          disabled={atStart}
+                          aria-label="Previous image"
+                          style={{
+                            ...arrowBase,
+                            left: -14,
+                            opacity: atStart ? 0.25 : 1,
+                            cursor: atStart ? 'default' : 'pointer',
+                          }}
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                       <div
-                        className="grid grid-cols-2 gap-2.5"
+                        className={totalImages === 1 ? 'flex justify-center' : 'grid grid-cols-2 gap-2.5'}
                         style={{ height: '100%', minHeight: isQuote ? 220 : 180 }}
                       >
                         {images.map((src, i) => {
-                          const visible = i >= carPage && i < carPage + 2;
+                          const visible = totalImages === 1 || (i >= carPage && i < carPage + 2);
                           return (
                             <img
                               key={`${job.uuid}-${src}-${i}`}
                               src={src}
                               alt={i === 0 ? job.design : ''}
-                              className="w-full rounded-xl object-cover"
+                              className={totalImages === 1 ? 'rounded-xl object-cover' : 'w-full rounded-xl object-cover'}
                               style={{
                                 display: visible ? 'block' : 'none',
                                 height: '100%',
                                 minHeight: 150,
+                                maxWidth: totalImages === 1 ? '60%' : undefined,
                                 border: '1px solid rgba(15,23,42,0.06)',
                                 background: 'rgba(0,0,0,0.04)',
                               }}
@@ -1126,20 +1140,22 @@ export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobD
                           );
                         })}
                       </div>
-                      <button
-                        type="button"
-                        onClick={navNext}
-                        disabled={atEnd}
-                        aria-label="Next image"
-                        style={{
-                          ...arrowBase,
-                          right: -14,
-                          opacity: atEnd ? 0.25 : 1,
-                          cursor: atEnd ? 'default' : 'pointer',
-                        }}
-                      >
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
+                      {totalImages !== 1 && (
+                        <button
+                          type="button"
+                          onClick={navNext}
+                          disabled={atEnd}
+                          aria-label="Next image"
+                          style={{
+                            ...arrowBase,
+                            right: -14,
+                            opacity: atEnd ? 0.25 : 1,
+                            cursor: atEnd ? 'default' : 'pointer',
+                          }}
+                        >
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -1555,6 +1571,13 @@ export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobD
                   value={displayJob.ref}
                   valueStyle={{ color: '#B22234', fontFamily: 'IBM Plex Mono, monospace', fontSize: 10.5 }}
                 />
+                {displayJob.clientPo ? (
+                  <DetailRow
+                    label="Client PO / Ref"
+                    value={displayJob.clientPo}
+                    valueStyle={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10.5 }}
+                  />
+                ) : null}
                 <DetailRow
                   label="Client Budget"
                   value={clientBudget !== null ? `$${Number(clientBudget).toLocaleString()}` : 'Not provided'}
