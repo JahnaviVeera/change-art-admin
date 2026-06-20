@@ -1542,7 +1542,22 @@ export function JobDetailModal({ job, onClose, onEdit, quoteView = false }: JobD
                 <DetailRow label="Complexity" value={displayJob.complexity} />
                 {displayJob.process ? <DetailRow label="Process" value={displayJob.process} /> : null}
                 <DetailRow label="Colors" value={String(displayJob.colors)} />
-                {displayJob.finalFiles?.length ? <DetailRow label="Output Formats" value={displayJob.finalFiles.join(', ')} /> : null}
+                {displayJob.finalFiles?.length ? (
+                  <DetailRow
+                    label="Output Formats"
+                    value={(() => {
+                      const text = displayJob.notes || displayJob.summary;
+                      const match = text?.match(/\[\s*Expected Output Format\s*:\s*([^\]]*?)\s*\]/i);
+                      const customFormat = match && match[1] ? match[1].trim().replace(/^others:\s*/i, '') : null;
+                      return displayJob.finalFiles.map(f => {
+                        if (f.toUpperCase() === 'OTHERS' || f.toUpperCase() === 'OTHER') {
+                          return customFormat || f;
+                        }
+                        return f;
+                      }).join(', ');
+                    })()}
+                  />
+                ) : null}
                 <DetailRow label="Assigned To" value={displayJob.assignedTo ?? 'Unassigned'} />
                 {displayJob.subType ? <DetailRow label="Sub-Type" value={displayJob.subType} /> : null}
               </div>
@@ -2565,7 +2580,21 @@ function CompareView({
     { label: 'Priority', get: (j) => j.priority || '—' },
     { label: 'ETA Hours', get: (j) => j.etaHours != null ? `${j.etaHours}h` : '—' },
     { label: 'Colors', get: (j) => j.colors != null ? String(j.colors) : '—' },
-    { label: 'Output Formats', get: (j) => j.finalFiles?.length ? j.finalFiles.join(', ') : '—' },
+    {
+      label: 'Output Formats',
+      get: (j) => {
+        if (!j.finalFiles?.length) return '—';
+        const text = j.notes || j.summary;
+        const match = text?.match(/\[\s*Expected Output Format\s*:\s*([^\]]*?)\s*\]/i);
+        const customFormat = match && match[1] ? match[1].trim().replace(/^others:\s*/i, '') : null;
+        return j.finalFiles.map(f => {
+          if (f.toUpperCase() === 'OTHERS' || f.toUpperCase() === 'OTHER') {
+            return customFormat || f;
+          }
+          return f;
+        }).join(', ');
+      }
+    },
     { label: 'Placement', get: (j) => j.placement || '—' },
     { label: 'Width (in)', get: (j) => j.width != null ? `${j.width}"` : '—' },
     { label: 'Height (in)', get: (j) => j.height != null ? `${j.height}"` : '—' },
