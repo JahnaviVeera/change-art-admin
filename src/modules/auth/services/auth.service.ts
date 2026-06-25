@@ -71,19 +71,45 @@ export const authService = {
   },
 
   async signIn(payload: SignInPayload): Promise<SessionUser> {
-    const res = await apiClient.raw.post<BetterAuthResponse>(
-      '/api/auth/sign-in/email',
-      payload,
-    );
-    const user = adaptUser(res.data.user ?? null);
-    if (!user) {
-      throw new ApiClientError({
-        code: ERROR_CODES.INVALID_CREDENTIALS,
-        message: 'Sign-in succeeded but no session user was returned.',
-        status: 500,
-      });
+    try {
+      const res = await apiClient.raw.post<BetterAuthResponse>(
+        '/api/auth/sign-in/email',
+        payload,
+      );
+      const user = adaptUser(res.data.user ?? null);
+      if (!user) {
+        throw new ApiClientError({
+          code: ERROR_CODES.INVALID_CREDENTIALS,
+          message: 'Sign-in succeeded but no session user was returned.',
+          status: 500,
+        });
+      }
+      if (!user.is_active) {
+        await authService.signOut().catch(() => {});
+        throw new ApiClientError({
+          code: ERROR_CODES.ACCOUNT_DEACTIVATED,
+          message: 'Your account has been deactivated. Contact an administrator.',
+          status: 403,
+        });
+      }
+      return user;
+    } catch (err) {
+      // Re-throw our own typed errors unchanged.
+      if (err instanceof ApiClientError) throw err;
+      // Better Auth returns its own error shape on 4xx — convert to ApiClientError
+      // so LoginForm's catch block can display a proper message instead of
+      // falling through to the generic "An unexpected error occurred."
+      const axiosErr = err as { response?: { status?: number; data?: { code?: string; message?: string } } };
+      const status = axiosErr.response?.status ?? 500;
+      const baCode = axiosErr.response?.data?.code ?? '';
+      if (baCode === 'INVALID_EMAIL_OR_PASSWORD' || status === 401) {
+        throw new ApiClientError({ code: ERROR_CODES.INVALID_CREDENTIALS, message: 'Email or password is incorrect.', status });
+      }
+      if (baCode === 'EMAIL_NOT_VERIFIED' || status === 403) {
+        throw new ApiClientError({ code: ERROR_CODES.UNAUTHENTICATED, message: axiosErr.response?.data?.message ?? 'Sign-in failed. Please try again.', status });
+      }
+      throw new ApiClientError({ code: ERROR_CODES.INTERNAL_ERROR, message: 'Sign-in failed. Please try again.', status });
     }
-    return user;
   },
 
   async signUp(payload: SignUpPayload): Promise<SessionUser> {
