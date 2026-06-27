@@ -160,14 +160,15 @@ function draftFromFilters(f: JobFilters): PanelDraft {
   };
 }
 
-function draftHasChanges(draft: PanelDraft, committed: JobFilters): boolean {
+function draftHasChanges(draft: PanelDraft | null | undefined, committed: JobFilters | null | undefined): boolean {
+  if (!draft || !committed) return false;
   return (
-    draft.orderType !== committed.orderType ||
-    draft.priority  !== committed.priority  ||
-    draft.status    !== committed.status    ||
-    draft.clientId  !== committed.clientId  ||
-    draft.dateFrom  !== committed.dateFrom  ||
-    draft.dateTo    !== committed.dateTo
+    (draft.orderType ?? '') !== (committed.orderType ?? '') ||
+    (draft.priority  ?? '') !== (committed.priority  ?? '') ||
+    (draft.status    ?? '') !== (committed.status    ?? '') ||
+    (draft.clientId  ?? '') !== (committed.clientId  ?? '') ||
+    (draft.dateFrom  ?? '') !== (committed.dateFrom  ?? '') ||
+    (draft.dateTo    ?? '') !== (committed.dateTo    ?? '')
   );
 }
 

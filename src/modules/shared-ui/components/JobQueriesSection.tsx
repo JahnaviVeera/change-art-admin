@@ -34,7 +34,7 @@ export function JobQueriesSection({ jobId }: JobQueriesSectionProps) {
 
   const handleSubmit = () => {
     const msg = text.trim();
-    if (!msg || !jobId) return;
+    if (!msg || !jobId || raiseQuery.isPending) return;
     raiseQuery.mutate(msg, {
       onSuccess: () => {
         setText('');

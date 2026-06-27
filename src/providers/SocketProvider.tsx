@@ -154,6 +154,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
     });
 
     socket.on(SOCKET_EVENTS.QUERY_RAISED, (event: QueryRaisedEvent) => {
+      if (!event?.jobId) return;
       queryClient.invalidateQueries({ queryKey: queryKeys.queries.forJob(event.jobId) });
     });
 

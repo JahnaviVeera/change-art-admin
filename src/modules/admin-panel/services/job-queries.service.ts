@@ -2,11 +2,19 @@ import { apiClient } from '@lib/api-client';
 import type { IJobQuery } from '@contracts';
 
 export const jobQueriesService = {
-  listForJob(jobCardId: string): Promise<IJobQuery[]> {
-    return apiClient.get<IJobQuery[]>(`/api/v1/job-cards/${jobCardId}/queries`);
+  async listForJob(jobCardId: string): Promise<IJobQuery[]> {
+    try {
+      return await apiClient.get<IJobQuery[]>(`/api/v1/job-cards/${jobCardId}/queries`);
+    } catch (err) {
+      throw err instanceof Error ? err : new Error('Failed to load queries');
+    }
   },
 
-  raiseQuery(jobCardId: string, message: string): Promise<IJobQuery> {
-    return apiClient.post<IJobQuery>(`/api/v1/job-cards/${jobCardId}/queries`, { message });
+  async raiseQuery(jobCardId: string, message: string): Promise<IJobQuery> {
+    try {
+      return await apiClient.post<IJobQuery>(`/api/v1/job-cards/${jobCardId}/queries`, { message });
+    } catch (err) {
+      throw err instanceof Error ? err : new Error('Failed to send query');
+    }
   },
 };
