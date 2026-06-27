@@ -13,6 +13,7 @@
  */
 
 import type {
+  ClientApprovalStatus,
   DesignComplexity,
   EmailIngestionStatus,
   FileCategory,
@@ -84,6 +85,7 @@ export interface IClient {
   payment_mode: PaymentMode | null;
   card_on_file: ICardOnFile | null;
   user_id: string | null;
+  approval_status: ClientApprovalStatus | null;
   created_at: IsoDateTime;
   updated_at: IsoDateTime;
 }
